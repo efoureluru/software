@@ -72,10 +72,12 @@ export default function AdminDashboard() {
     const totalRevenue = tickets.reduce((sum, t) => sum + t.amount, 0);
 
     // Filtered Tickets
-    const filteredTickets = tickets.filter(t =>
-        t.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (t.mobile && t.mobile.includes(searchTerm))
-    );
+    // Filtered Tickets
+    const filteredTickets = tickets.filter(t => {
+        const idMatch = t.id ? t.id.toLowerCase().includes(searchTerm.toLowerCase()) : false;
+        const mobileMatch = t.mobile ? t.mobile.includes(searchTerm) : false;
+        return idMatch || mobileMatch;
+    });
 
     // Change Password State
     const [showPasswordModal, setShowPasswordModal] = useState(false);
