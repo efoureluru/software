@@ -31,6 +31,7 @@ export default function POS() {
         mobile: string;
         subTickets?: any[];
         skipMaster?: boolean;
+        earnedPoints?: number;
     } | null>(null);
 
 
@@ -228,7 +229,8 @@ export default function POS() {
             id: ticketId,
             mobile: mobileNumber,
             subTickets: subTickets, // Pass sub-tickets for printing
-            skipMaster: onlyCombos && subTickets.length > 0 // Skip master if only combos
+            skipMaster: onlyCombos && subTickets.length > 0, // Skip master if only combos
+            earnedPoints: mobileNumber ? (Math.floor(totalWithTax / 100) * 10) : 0
         });
 
         // Save to Backend with Offline Fallback
@@ -240,15 +242,24 @@ export default function POS() {
             // 1. Save Tickets
             await Promise.all(ticketsToSave.map(t => axios.post(`${API_URL}/api/tickets`, t)));
 
-            // 2. Process Loyalty (Fire & Forget to not block printing)
-            if (mobileNumber) {
+            // 2. Process Loyalty (Await to ensure it finishes)
+            if (mobileNumber && mobileNumber.length === 10) {
                 // Earn Points
-                if (totalWithTax > 0) {
-                    axios.post(`${API_URL}/api/loyalty/earn`, {
-                        mobile: mobileNumber,
-                        amount: totalWithTax,
-                        ticketId
-                    }).catch(err => console.error('Loyalty Earn Failed:', err));
+                if (totalWithTax >= 100) {
+                    try {
+                        const loyaltyRes = await axios.post(`${API_URL}/api/loyalty/earn`, {
+                            mobile: mobileNumber,
+                            amount: totalWithTax,
+                            ticketId
+                        });
+                        console.log('Loyalty Earn Success:', loyaltyRes.data);
+                        // Optional: Refresh local loyalty points state
+                        if (loyaltyRes.data.points !== undefined) {
+                            setLoyaltyPoints(loyaltyRes.data.points);
+                        }
+                    } catch (lErr) {
+                        console.error('Loyalty Earn Failed:', lErr);
+                    }
                 }
 
                 // Redeem Points (if reward is in cart)
@@ -256,10 +267,14 @@ export default function POS() {
                 if (rewardItem) {
                     // Determine how many rewards were used
                     for (let i = 0; i < rewardItem.quantity; i++) {
-                        axios.post(`${API_URL}/api/loyalty/redeem`, {
-                            mobile: mobileNumber,
-                            ticketId
-                        }).catch(err => console.error('Loyalty Redeem Failed:', err));
+                        try {
+                            await axios.post(`${API_URL}/api/loyalty/redeem`, {
+                                mobile: mobileNumber,
+                                ticketId
+                            });
+                        } catch (rErr) {
+                            console.error('Loyalty Redeem Failed:', rErr);
+                        }
                     }
                 }
             }
@@ -569,6 +584,7 @@ export default function POS() {
                         mobileNumber={printData?.mobile || ''}
                         subTickets={printData?.subTickets}
                         skipMaster={printData?.skipMaster}
+                        earnedPoints={printData?.earnedPoints}
                     />
                 </div>
             </div>
@@ -581,7 +597,16 @@ export default function POS() {
                             <TicketIcon className="w-10 h-10 text-emerald-600" />
                         </div>
                         <h2 className="text-2xl font-bold text-slate-900 mb-2">Printing Complete</h2>
-                        <p className="text-slate-500 mb-8 text-lg leading-relaxed">Please collect your tickets from the printer.</p>
+                        {printData?.earnedPoints && printData.earnedPoints > 0 ? (
+                            <div className="mb-8">
+                                <p className="text-slate-500 text-lg leading-relaxed">Please collect your tickets.</p>
+                                <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full font-bold text-sm">
+                                    <span>✨ Earned {printData.earnedPoints} Loyalty Points</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-slate-500 mb-8 text-lg leading-relaxed">Please collect your tickets from the printer.</p>
+                        )}
 
                         <div className="space-y-3">
                             <button

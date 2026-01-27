@@ -12,9 +12,10 @@ interface TicketProps {
     date: string;
     ticketId: string;
     mobileNumber?: string;
+    earnedPoints?: number;
 }
 
-export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: any[], skipMaster?: boolean }>(({ items, total, date, ticketId, mobileNumber, subTickets, skipMaster }, ref) => {
+export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: any[], skipMaster?: boolean }>(({ items, total, date, ticketId, mobileNumber, subTickets, skipMaster, earnedPoints }, ref) => {
 
     const TicketContent = ({ data, isCoupon = false, index = 0 }: { data: any, isCoupon?: boolean, index?: number }) => (
         <div className={`bg-white text-black font-mono ${isCoupon ? 'page-break-before' : ''}`}
@@ -29,7 +30,6 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
         >
             {/* Header Section */}
             <div className="text-center border-b-4 border-black pb-2 mb-2">
-                <img src="/e3logo.jpeg" alt="Logo" className="w-12 h-12 mx-auto mb-1 rounded-md" />
                 <h1 className="font-black text-2xl uppercase tracking-widest leading-none mb-1">ETHREE</h1>
                 <h2 className="font-bold text-xs uppercase tracking-wider leading-none">EAT • ENJOY • ENTERTAIN</h2>
             </div >
@@ -39,6 +39,11 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
                 <span>{date}</span>
                 <span>TICKET #: <span className="text-sm">{data.id}</span></span>
                 {mobileNumber && <span>MOB: {mobileNumber}</span>}
+                {!isCoupon && earnedPoints && earnedPoints > 0 && (
+                    <span className="mt-1 text-indigo-700 bg-indigo-50 px-1 py-0.5 border border-indigo-200 rounded-sm">
+                        REWARDS EARNED: {earnedPoints} PTS
+                    </span>
+                )}
                 {isCoupon && <span className="bg-black text-white px-1 py-0.5 mt-1 inline-block mr-auto rounded-sm">RIDE TICKET {index} OF 5</span>}
             </div >
 
