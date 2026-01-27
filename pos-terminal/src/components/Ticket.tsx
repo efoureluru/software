@@ -28,9 +28,10 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
             }}
         >
             {/* Header Section */}
-            <div className="text-left border-b-4 border-black pb-2 mb-2">
+            <div className="text-center border-b-4 border-black pb-2 mb-2">
+                <img src="/e3logo.jpeg" alt="Logo" className="w-12 h-12 mx-auto mb-1 rounded-md" />
                 <h1 className="font-black text-2xl uppercase tracking-widest leading-none mb-1">ETHREE</h1>
-                <h2 className="font-bold text-lg uppercase tracking-wide leading-none">POS TERMINAL</h2>
+                <h2 className="font-bold text-xs uppercase tracking-wider leading-none">EAT • ENJOY • ENTERTAIN</h2>
             </div >
 
             {/* Meta Info */}
