@@ -609,7 +609,7 @@ export default function AdminDashboard() {
                                         <th className="px-6 py-5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">User Name</th>
                                         <th className="px-6 py-5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">Email Address</th>
                                         <th className="px-6 py-5 text-xs font-extrabold text-slate-500 uppercase tracking-wider text-center">Role</th>
-                                        <th className="px-6 py-5 text-xs font-extrabold text-slate-500 uppercase tracking-wider text-center">Points</th>
+                                        <th className="px-6 py-5 text-xs font-extrabold text-slate-500 uppercase tracking-wider text-center">Tickets Sold</th>
                                         <th className="px-6 py-5 text-xs font-extrabold text-slate-500 uppercase tracking-wider text-right">Joined</th>
                                     </tr>
                                 </thead>
@@ -637,7 +637,9 @@ export default function AdminDashboard() {
                                                         {user.role}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-center font-black text-indigo-600">{user.rewardPoints}</td>
+                                                <td className="px-6 py-4 text-center font-black text-indigo-600">
+                                                    {tickets.filter(t => t.createdBy === user.name).length}
+                                                </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex flex-col items-end gap-1">
                                                         <span className="text-slate-400 text-xs font-bold whitespace-nowrap">{new Date(user.createdAt).toLocaleDateString()}</span>
