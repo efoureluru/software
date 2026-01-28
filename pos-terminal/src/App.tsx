@@ -30,14 +30,27 @@ function PrivateRoute({ children, role }: { children: React.ReactNode, role?: st
 }
 
 function App() {
-  // Setup Global Axios Interceptor for Token Expiration (Auto Logout)
+  // Setup Global Axios Interceptors
   useEffect(() => {
-    const interceptor = axios.interceptors.response.use(
+    // Request Interceptor: Attach Token
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+          // Also set x-auth-token for legacy routes
+          config.headers['x-auth-token'] = token;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Response Interceptor: Auto Logout on 401/403
+    const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-          // If 401 Unauthorized or 403 Forbidden (specifically for token issues), logout
-          // But be careful not to loop if login itself fails with 400
           if (!window.location.hash.includes('/login')) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
@@ -49,7 +62,8 @@ function App() {
     );
 
     return () => {
-      axios.interceptors.response.eject(interceptor);
+      axios.interceptors.request.eject(requestInterceptor);
+      axios.interceptors.response.eject(responseInterceptor);
     };
   }, []);
 

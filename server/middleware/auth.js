@@ -1,11 +1,18 @@
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'ethree_fallback_secret_key_2024';
+
 const auth = (req, res, next) => {
-    const token = req.header('x-auth-token');
+    // Check for token in Authorization header or x-auth-token
+    let token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+        token = req.header('x-auth-token');
+    }
+
     if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded;
         next();
     } catch (err) {

@@ -12,7 +12,11 @@ if (!process.env.JWT_SECRET) {
 
 // Middleware to check if user is admin
 const verifyAdmin = async (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    let token = req.header('Authorization')?.replace('Bearer ', '');
+    if (!token) {
+        token = req.header('x-auth-token');
+    }
+
     if (!token) return res.status(401).json({ message: 'Access denied' });
 
     try {
@@ -24,7 +28,7 @@ const verifyAdmin = async (req, res, next) => {
         req.user = user;
         next();
     } catch (err) {
-        res.status(400).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Invalid token' });
     }
 };
 
@@ -174,7 +178,7 @@ router.post('/verify-otp', async (req, res) => {
             user = await User.create({ name: name || 'User', email, password: randomPass, role: 'customer' });
         }
 
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
         res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         res.status(500).json({ message: err.message });
