@@ -17,10 +17,9 @@ const seedInitialData = async () => {
     try {
         console.log('Synchronizing ride data with MongoDB...');
 
-        // CLEANUP: Remove stale data that doesn't have an 'id' (legacy schema artifacts)
-        // This ensures old "Kids Train" or other renamed/stale items are removed.
-        await Product.deleteMany({ id: { $exists: false } });
-        console.log('Cleaned up legacy data without IDs.');
+        // CLEANUP: Remove ALL legacy data to ensure a fresh start
+        await Product.deleteMany({});
+        console.log('Cleaned up all existing product data.');
 
         const initialRides = [
             { id: '1', name: 'Balloon Shooting', price: 100, description: 'Aim and fire to win prizes.', image: 'baloon shooting/IMG_8435.jpg', category: 'play' },
@@ -43,7 +42,7 @@ const seedInitialData = async () => {
             { id: '18', name: 'Mini Wheel Ride', price: 100, description: 'Small ferris wheel for younger kids.', image: 'mini wheel ride/1.avif', category: 'play' },
             { id: '19', name: 'Combo Adult (5 Rides)', price: 500, description: '5 Rides for Adults.', image: 'combo adult/E4LOGO.jpeg', category: 'play' },
             { id: '20', name: 'Combo Child (5 Rides)', price: 500, description: '5 Rides for Children.', image: 'combo child/E4LOGO.jpeg', category: 'play' },
-            { id: '21', name: 'Ticket Summary Pas (5 Rides)', price: 500, description: '', image: 'E4LOGO.jpeg', category: 'play' }
+            { id: '21', name: 'Ticket Summary Pass', price: 500, description: '', image: 'E4LOGO.jpeg', category: 'play' }
         ];
 
         // Use bulk operations or loop with upsert to ensure existing rides are updated
