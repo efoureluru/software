@@ -305,8 +305,8 @@ export default function AdminDashboard() {
 
                     {/* User Info */}
                     <div className="hidden lg:flex flex-col border-l border-slate-700 pl-4 ml-4">
-                        <span className="text-xs font-black text-white uppercase tracking-wider">{JSON.parse(localStorage.getItem('user') || '{}').name}</span>
-                        <span className="text-[10px] font-bold text-blue-400/80 uppercase tracking-widest">{JSON.parse(localStorage.getItem('user') || '{}').role}</span>
+                        <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest leading-none mb-1">Authenticated</span>
+                        <span className="text-xs font-bold text-white tracking-wide">{JSON.parse(localStorage.getItem('user') || '{}').email || 'Admin'}</span>
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-4">

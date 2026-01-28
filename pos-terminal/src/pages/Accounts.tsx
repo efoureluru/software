@@ -99,8 +99,8 @@ export default function Accounts() {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex flex-col items-end mr-2 border-r border-white/20 pr-4">
-                            <span className="text-sm font-black text-white">{JSON.parse(localStorage.getItem('user') || '{}').name}</span>
-                            <span className="text-[10px] text-blue-300 font-bold uppercase tracking-widest">{JSON.parse(localStorage.getItem('user') || '{}').role}</span>
+                            <span className="text-[10px] text-blue-300 font-bold uppercase tracking-widest mb-0.5">Authenticated</span>
+                            <span className="text-sm font-black text-white">{JSON.parse(localStorage.getItem('user') || '{}').email || 'Admin'}</span>
                         </div>
                         <button
                             onClick={handleLogout}
