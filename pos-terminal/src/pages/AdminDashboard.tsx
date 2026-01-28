@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Download, LogOut, RefreshCw, Receipt, Search, Trash2, AlertTriangle, BarChart3, List, Users, PieChart as PieChartIcon } from 'lucide-react';
+import { Download, LogOut, RefreshCw, Receipt, Search, Trash2, AlertTriangle, BarChart3, List, Users } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 interface User {
