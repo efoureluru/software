@@ -12,18 +12,18 @@
     "preview": "vite preview"
   },
   "main": "electron/main.cjs",
-  "author": "Ethree",
-  "description": "Ethree POS Terminal Application",
+  "author": "Efour",
+  "description": "Efour POS Terminal Application",
   "build": {
-    "appId": "com.ethree.pos",
+    "appId": "com.efour.pos",
     "asar": false,
-    "productName": "Ethree POS",
+    "productName": "Efour POS",
     "directories": {
       "output": "dist-electron"
     },
     "win": {
       "target": "nsis",
-      "icon": "public/e3logo.jpeg"
+      "icon": "public/E4LOGO.jpeg"
     },
     "files": [
       "dist/**/*",
