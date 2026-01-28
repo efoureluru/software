@@ -150,9 +150,9 @@ export const rides: Ride[] = [
     },
     {
         id: '21',
-        name: 'Ticket Summary Pass', // Removed " (5 Rides)" as requested? "Ticket Summary Pas (5 Rides)" was in prompt, but user said "Ticket Summary Pas (5 Rides) ₹500 (Special Pass: Any 5 rides... remove this)". Actually user said "Ticket Summary Pas (5 Rides) ₹500". I will leave name as Requested. Wait, user request: "Ticket Summary Pas (5 Rides) ₹500 (Special Pass: Any 5 rides of your choice!--remove this)" -> The "Special Pass..." might be description.
+        name: 'Ticket Summary Pass (5 Rides)',
         price: 500,
-        description: '', // Description removed as requested
+        description: '',
         image: 'E4LOGO.jpeg'
     }
 ];
