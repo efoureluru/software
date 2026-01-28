@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Ride } from '../data/rides';
 import { Plus } from 'lucide-react';
 
@@ -6,7 +7,7 @@ interface RideCardProps {
     onAdd: (ride: Ride) => void;
 }
 
-export function RideCard({ ride, onAdd }: RideCardProps) {
+export const RideCard = memo(function RideCard({ ride, onAdd }: RideCardProps) {
     return (
         <div className="group relative bg-white rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-100 overflow-hidden flex flex-col h-full">
             <div className="h-28 overflow-hidden relative">
@@ -42,4 +43,4 @@ export function RideCard({ ride, onAdd }: RideCardProps) {
             </div>
         </div>
     );
-}
+});

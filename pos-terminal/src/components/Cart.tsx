@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Ride } from '../data/rides';
 import { Trash2, Printer, ShoppingCart } from 'lucide-react';
 
@@ -20,7 +21,7 @@ interface CartProps {
     hasReward: boolean;
 }
 
-export function Cart({
+export const Cart = memo(function Cart({
     items,
     onUpdateQuantity,
     onClear,
@@ -206,4 +207,4 @@ export function Cart({
             </div>
         </div>
     );
-}
+});

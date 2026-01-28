@@ -10,65 +10,40 @@ import useStore from '../../store/useStore';
 export const ACTIVITIES = [
     {
         id: 1,
-        title: 'Bumping Cars',
-        price: 150,
-        ageGroup: '7+ years',
-        category: 'Action',
-        image: require('../../assets/images/play-bumper.jpg'),
-        desc: 'High-octane fun for kids and adults alike.'
+        title: 'Balloon Shooting',
+        price: 100,
+        ageGroup: 'All Ages',
+        category: 'Rides',
+        image: { uri: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=600&q=80' },
+        desc: 'Aim and fire to win prizes.'
     },
     {
         id: 2,
-        title: 'Indoor Cricket',
-        price: 500,
-        ageGroup: 'Youth',
-        category: 'Sports',
-        image: require('../../assets/images/play-cricket.jpg'),
-        desc: 'Professional-grade indoor cricket pitches.'
+        title: 'Bouncy',
+        price: 100,
+        ageGroup: 'Kids',
+        category: 'Rides',
+        image: { uri: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=600&q=80' },
+        desc: 'Safe inflatable fun for kids.'
     },
     {
         id: 3,
-        title: 'Trampoline Zone',
-        price: 200,
-        ageGroup: 'Kids',
-        category: 'Action',
-        image: require('../../assets/images/play-trampoline.jpg'),
-        desc: 'Anti-gravity world with giant trampolines.'
+        title: 'Bull Ride',
+        price: 100,
+        ageGroup: '10+',
+        category: 'Rides',
+        image: { uri: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=600&q=80' },
+        desc: 'Test your strength and balance.'
     },
     {
         id: 4,
-        title: 'Circling Tower',
-        price: 120,
-        ageGroup: 'Kids',
+        title: 'Bumping Cars',
+        price: 150,
+        ageGroup: '7+',
         category: 'Rides',
-        image: require('../../assets/images/play-tower.jpg'),
-        desc: 'Panoramic views of the Krishna river.'
+        image: { uri: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=600&q=80' },
+        desc: 'Classic favorite for fun.'
     },
-    {
-        id: 5,
-        title: 'Arcade Arena',
-        price: 'Coin',
-        ageGroup: 'All Ages',
-        category: 'Gaming',
-        image: require('../../assets/images/play-arcade.jpg'),
-        desc: 'Modern VR games and classic arcades.'
-    },
-    // Replicating items (using URIs for new ones to match website data style where local assets missing)
-    { id: 6, title: 'VR Experience', price: 300, ageGroup: '10+', category: 'Gaming', image: { uri: 'https://images.unsplash.com/photo-1622979135225-d2ba269fb1bd?auto=format&fit=crop&w=600&q=80' }, desc: 'Immersive Virtual Reality adventures.' },
-    { id: 7, title: 'Bowling Alley', price: 400, ageGroup: 'All Ages', category: 'Sports', image: { uri: 'https://images.unsplash.com/photo-1538566914565-d4c382103348?auto=format&fit=crop&w=600&q=80' }, desc: 'Classic ten-pin bowling fun.' },
-    { id: 8, title: 'Laser Tag', price: 350, ageGroup: '8+', category: 'Action', image: { uri: 'https://images.unsplash.com/photo-1555567540-c3d32847c20f?auto=format&fit=crop&w=600&q=80' }, desc: 'Tactical laser combat arena.' },
-    { id: 9, title: 'Kids Soft Play', price: 250, ageGroup: 'Toddlers', category: 'Kids', image: { uri: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80' }, desc: 'Safe and soft play area for little ones.' },
-    { id: 10, title: 'Go Karting', price: 600, ageGroup: '12+', category: 'Action', image: { uri: 'https://images.unsplash.com/photo-1505521377774-103a8cc2f735?auto=format&fit=crop&w=600&q=80' }, desc: 'Speed and thrills on the track.' },
-    { id: 11, title: 'Archery', price: 150, ageGroup: '10+', category: 'Sports', image: { uri: 'https://images.unsplash.com/photo-1511066922412-1d54cb6c5073?auto=format&fit=crop&w=600&q=80' }, desc: 'Test your aim and precision.' },
-    { id: 12, title: 'Rope Course', price: 200, ageGroup: '8+', category: 'Adventure', image: { uri: 'https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?auto=format&fit=crop&w=600&q=80' }, desc: 'Challenging obstacles high above.' },
-    { id: 13, title: 'Bull Ride', price: 100, ageGroup: '10+', category: 'Rides', image: { uri: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=600&q=80' }, desc: 'Can you stay on the mechanical bull?' },
-    { id: 14, title: 'Mini Golf', price: 180, ageGroup: 'All Ages', category: 'Sports', image: { uri: 'https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&w=600&q=80' }, desc: 'Fun putting challenges.' },
-    { id: 15, title: 'Mirror Maze', price: 120, ageGroup: 'All Ages', category: 'Adventure', image: { uri: 'https://images.unsplash.com/photo-1505322965620-332e92c30084?auto=format&fit=crop&w=600&q=80' }, desc: 'Find your way through the reflections.' },
-    { id: 16, title: 'Horror House', price: 200, ageGroup: '12+', category: 'Adventure', image: { uri: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=600&q=80' }, desc: 'Spooky thrills and scares.' },
-    { id: 17, title: 'Escape Room', price: 800, ageGroup: 'Group', category: 'Puzzle', image: { uri: 'https://images.unsplash.com/photo-1517260739337-6799d239ce83?auto=format&fit=crop&w=600&q=80' }, desc: 'Solve puzzles to escape in time.' },
-    { id: 18, title: 'Paintball', price: 450, ageGroup: '14+', category: 'Action', image: { uri: 'https://images.unsplash.com/photo-1555567959-199c9684c30c?auto=format&fit=crop&w=600&q=80' }, desc: 'Color combat with friends.' },
-    { id: 19, title: 'Water Boat', price: 150, ageGroup: 'Kids', category: 'Rides', image: { uri: 'https://images.unsplash.com/photo-1563299796-b729d0af54a5?auto=format&fit=crop&w=600&q=80' }, desc: 'Gentle boating fun for kids.' },
-    { id: 20, title: 'Ferris Wheel', price: 250, ageGroup: 'All Ages', category: 'Rides', image: { uri: 'https://images.unsplash.com/photo-1528659567210-985ea83c9284?auto=format&fit=crop&w=600&q=80' }, desc: 'Classic views from the top.' }
 ];
 
 const Play = () => {

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function VerifyTicket() {
     const [ticketId, setTicketId] = useState('');
-    const [status, setStatus] = useState<'idle' | 'valid' | 'used' | 'invalid'>('idle');
+    const [status, setStatus] = useState<'idle' | 'valid' | 'used' | 'invalid' | 'expired'>('idle');
     const [ticketData, setTicketData] = useState<any>(null);
     const [showScanner, setShowScanner] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -58,6 +58,10 @@ export default function VerifyTicket() {
                 const ticket = e.response.data.ticket;
                 if (ticket.status === 'used') {
                     setStatus('used');
+                    setTicketData(ticket);
+                    return;
+                } else if (ticket.status === 'invalid' && e.response.data.message === 'Ticket expired') {
+                    setStatus('expired');
                     setTicketData(ticket);
                     return;
                 }
@@ -160,6 +164,20 @@ export default function VerifyTicket() {
                                 <p className="text-amber-700/80 font-medium text-lg">
                                     This ticket was redeemed on<br />
                                     <span className="font-bold text-amber-900">{ticketData.usedAt ? new Date(ticketData.usedAt).toLocaleString() : 'Earlier'}</span>
+                                </p>
+                            </div>
+                        )}
+
+                        {status === 'expired' && (
+                            <div className="p-12 text-center bg-orange-50 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-2 bg-orange-500"></div>
+                                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-orange-500/10 ring-4 ring-orange-100">
+                                    <AlertCircle className="w-12 h-12 text-orange-500" />
+                                </div>
+                                <h2 className="text-3xl font-black text-orange-800 mb-2 tracking-tight">TICKET EXPIRED</h2>
+                                <p className="text-orange-700/80 font-medium text-lg">
+                                    This ticket was valid only on<br />
+                                    <span className="font-bold text-orange-900">{new Date(ticketData.createdAt).toLocaleDateString()}</span>
                                 </p>
                             </div>
                         )}
