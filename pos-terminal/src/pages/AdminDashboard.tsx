@@ -116,7 +116,31 @@ export default function AdminDashboard() {
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
-        link.setAttribute('download', `daily_analytics_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute('download', `sales_summary_7days_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const downloadDailyReport = (day: any) => {
+        const headers = ['Date', 'Tickets Sold', 'Cash Revenue', 'UPI Revenue', 'Total Revenue'];
+        const csvContent = [
+            headers.join(','),
+            [
+                day.date,
+                day.count,
+                day.cash,
+                day.upi,
+                day.revenue
+            ].join(',')
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `daily_report_${day.date}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -561,7 +585,16 @@ export default function AdminDashboard() {
                                                 <span className="text-blue-600 font-bold">₹{day.upi.toLocaleString()}</span>
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <span className="text-emerald-600 font-black text-lg">₹{day.revenue.toLocaleString()}</span>
+                                                <div className="flex flex-col items-end gap-1">
+                                                    <span className="text-emerald-600 font-black text-lg leading-none">₹{day.revenue.toLocaleString()}</span>
+                                                    <button
+                                                        onClick={() => downloadDailyReport(day)}
+                                                        className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-blue-600 bg-slate-50 hover:bg-white px-2 py-0.5 rounded border border-transparent hover:border-blue-100 transition-all"
+                                                    >
+                                                        <Download size={10} />
+                                                        Export Day
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
