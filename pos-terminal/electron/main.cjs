@@ -5,8 +5,8 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
-        title: "Ethree POS Terminal",
-        icon: path.join(__dirname, '../public/e3logo.jpeg'), // Ensure this path is correct after build
+        title: "EFOUR POS",
+        icon: path.join(__dirname, '../public/E4LOGO.jpeg'), // Ensure this path is correct after build
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -23,7 +23,7 @@ function createWindow() {
     }
 
     // Uncomment to open DevTools automatically
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {

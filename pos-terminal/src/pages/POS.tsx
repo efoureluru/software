@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { rides, type Ride } from '../data/rides';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import type { Ride } from '../data/rides';
 import { RideCard } from '../components/RideCard';
 import { Cart } from '../components/Cart';
 import { Ticket } from '../components/Ticket';
@@ -21,6 +21,10 @@ export default function POS() {
     const [loyaltyPoints, setLoyaltyPoints] = useState<number | null>(null);
     const [loadingPoints, setLoadingPoints] = useState(false);
     const [paymentMode, setPaymentMode] = useState<'cash' | 'upi' | null>(null);
+    const [rides, setRides] = useState<Ride[]>([]);
+    const [loadingRides, setLoadingRides] = useState(true);
+
+    const loggedUser = useMemo(() => JSON.parse(localStorage.getItem('user') || '{}'), []);
 
     // State to hold the ticket currently being printed/reprinted
     const [printData, setPrintData] = useState<{
@@ -43,6 +47,25 @@ export default function POS() {
 
     const ticketRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+
+    // Fetch Rides from API
+    useEffect(() => {
+        const fetchRides = async () => {
+            setLoadingRides(true);
+            try {
+                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+                const response = await axios.get(`${API_URL}/api/products`);
+                setRides(response.data);
+            } catch (error) {
+                console.error('Failed to fetch rides', error);
+                // Fallback to static rides if API fails? 
+                // Better to show error or empty. 
+            } finally {
+                setLoadingRides(false);
+            }
+        };
+        fetchRides();
+    }, []);
 
     // Monitor Network Status
     useEffect(() => {
@@ -69,10 +92,13 @@ export default function POS() {
         }
     }, [isOnline, pendingCount]);
 
-    // Fetch Loyalty Points
+    // Fetch Loyalty Points (Debounced)
     useEffect(() => {
         if (mobileNumber.length === 10) {
-            fetchLoyaltyPoints(mobileNumber);
+            const timer = setTimeout(() => {
+                fetchLoyaltyPoints(mobileNumber);
+            }, 500);
+            return () => clearTimeout(timer);
         } else {
             setLoyaltyPoints(null);
         }
@@ -83,7 +109,9 @@ export default function POS() {
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
             const res = await axios.get(`${API_URL}/api/loyalty/${mobile}`);
-            setLoyaltyPoints(res.data.points);
+            if (res.data.points !== undefined) {
+                setLoyaltyPoints(res.data.points);
+            }
         } catch (e) {
             console.error('Failed to fetch points', e);
         } finally {
@@ -91,7 +119,7 @@ export default function POS() {
         }
     };
 
-    const addRewardToCart = () => {
+    const addRewardToCart = useCallback(() => {
         setCart(prev => [...prev, {
             id: 'reward-1',
             name: '🎁 Free Priority Ride',
@@ -99,72 +127,57 @@ export default function POS() {
             quantity: 1,
             description: 'Loyalty Reward (100 Pts)'
         }]);
-    };
+    }, []);
 
     const syncOfflineTickets = async () => {
         setIsSyncing(true);
         const pending = JSON.parse(localStorage.getItem('pending_tickets') || '[]');
 
-        if (pending.length === 0) {
+        if (!pending || pending.length === 0) {
             setIsSyncing(false);
             return;
         }
 
-        console.log(`Attempting to sync ${pending.length} tickets...`);
+        console.log(`Attempting to sync ${pending.length} tickets to ${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/tickets`);
 
-        const remaining = [];
-        let successCount = 0;
-
-        for (const ticket of pending) {
-            try {
-                await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/tickets`, ticket);
-                successCount++;
-            } catch (error: any) {
-                const errorMessage = error.response?.data?.message || error.message;
-                // If ticket already exists (E11000), consider it synced/skipped to avoid loop
-                if (errorMessage.includes('E11000') || errorMessage.includes('duplicate')) {
-                    console.log('Ticket already exists on server, removing from pending:', ticket.id);
-                    successCount++;
-                    continue; // Do not add to remaining
-                }
-                console.error('Sync failed for ticket:', ticket.id, errorMessage);
-                remaining.push(ticket);
-            }
-        }
-
-        localStorage.setItem('pending_tickets', JSON.stringify(remaining));
-        setPendingCount(remaining.length);
-        setIsSyncing(false);
-
-        if (successCount > 0) {
-            alert(`Synced ${successCount} offline tickets to server.`);
+        try {
+            await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/tickets`, pending);
+            localStorage.setItem('pending_tickets', '[]');
+            setPendingCount(0);
+            alert(`Synced ${pending.length} offline tickets to server.`);
+        } catch (error: any) {
+            console.error('Sync failed', error);
+        } finally {
+            setIsSyncing(false);
         }
     };
 
-    const addToCart = (ride: Ride) => {
+    const addToCart = useCallback((ride: Ride) => {
         setCart(prev => {
-            const existing = prev.find(item => item.id === ride.id);
+            const rideId = ride._id || ride.id;
+            const existing = prev.find(item => (item._id || item.id) === rideId);
             if (existing) {
                 return prev.map(item =>
-                    item.id === ride.id ? { ...item, quantity: item.quantity + 1 } : item
+                    (item._id || item.id) === rideId ? { ...item, quantity: item.quantity + 1 } : item
                 );
             }
             return [...prev, { ...ride, quantity: 1 }];
         });
-    };
+    }, []);
 
-    const updateQuantitySimple = (id: string, delta: number) => {
+    const updateQuantitySimple = useCallback((id: string, delta: number) => {
         setCart(prev => prev.map(item => {
-            if (item.id === id) {
+            const itemId = item._id || item.id;
+            if (itemId === id) {
                 return { ...item, quantity: item.quantity + delta };
             }
             return item;
         }).filter(item => item.quantity > 0));
-    };
+    }, []);
 
-    const clearCart = () => setCart([]);
+    const clearCart = useCallback(() => setCart([]), []);
 
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const total = useMemo(() => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0), [cart]);
     const totalWithTax = total; // Tax removed
 
 
@@ -180,49 +193,64 @@ export default function POS() {
         // Handle Split Saving: Regular Items vs Combo Items
         const ticketsToSave: any[] = [];
         const subTickets: any[] = [];
-        let onlyCombos = true;
 
-        const regularItems = cart.filter(item => item.id !== '21');
-        const comboItems = cart.filter(item => item.id === '21');
+        // 1. Prepare Regular Summary Ticket (for context/accounting)
+        const regularTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const masterTicket = {
+            id: ticketId,
+            amount: regularTotal,
+            date: date,
+            items: cart,
+            status: 'valid',
+            mobile: mobileNumber,
+            paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
+            createdBy: loggedUser.name || 'Unknown',
+            createdAt: new Date().toISOString()
+        };
+        ticketsToSave.push(masterTicket);
 
-        // 1. Prepare Regular Ticket (if any regular items exist)
-        if (regularItems.length > 0) {
-            onlyCombos = false;
-            const regularTotal = regularItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const regularTicket = {
-                id: ticketId,
-                amount: regularTotal,
-                date: date,
-                items: regularItems,
-                status: 'valid',
-                mobile: mobileNumber,
-                paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
-                createdBy: loggedUser.name || 'Unknown',
-                createdAt: new Date().toISOString()
-            };
-            ticketsToSave.push(regularTicket);
-        }
-
-        // 2. Prepare Combo Sub-Tickets
-        comboItems.forEach(item => {
-            // Generate 5 tickets for each combo quantity
-            for (let i = 0; i < item.quantity * 5; i++) {
-                const subId = `${ticketId}-C${subTickets.length + 1}`;
-                const subTicket = {
-                    id: subId,
-                    amount: 100, // Fixed price per sub-ticket
-                    date: date,
-                    items: [{ ...item, quantity: 1, name: 'ANY RIDE', price: 100 }],
-                    status: 'valid',
-                    mobile: mobileNumber,
-                    paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
-                    createdBy: loggedUser.name || 'Unknown',
-                    createdAt: new Date().toISOString(),
-                    isCoupon: true,
-                    parentId: ticketId
-                };
-                ticketsToSave.push(subTicket);
-                subTickets.push(subTicket);
+        // 2. Prepare Individual Ride Tickets
+        cart.forEach(item => {
+            if (item.id === '21') {
+                // Special Case: Combo Ride (ID 21) prints 5 tickets per quantity
+                for (let i = 0; i < item.quantity * 5; i++) {
+                    const subId = `${ticketId}-C${subTickets.length + 1}`;
+                    const subTicket = {
+                        id: subId,
+                        amount: 100, // Fixed price per sub-ticket for combo
+                        date: date,
+                        items: [{ ...item, quantity: 1, name: 'ANY RIDE', price: 100 }],
+                        status: 'valid',
+                        mobile: mobileNumber,
+                        paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
+                        createdBy: loggedUser.name || 'Unknown',
+                        createdAt: new Date().toISOString(),
+                        isCoupon: true,
+                        parentId: ticketId
+                    };
+                    ticketsToSave.push(subTicket);
+                    subTickets.push(subTicket);
+                }
+            } else {
+                // General Case: Every other ride prints one ticket per quantity
+                for (let i = 0; i < item.quantity; i++) {
+                    const subId = `${ticketId}-R${subTickets.length + 1}`;
+                    const subTicket = {
+                        id: subId,
+                        amount: item.price,
+                        date: date,
+                        items: [{ ...item, quantity: 1 }], // Single ride per ticket
+                        status: 'valid',
+                        mobile: mobileNumber,
+                        paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
+                        createdBy: loggedUser.name || 'Unknown',
+                        createdAt: new Date().toISOString(),
+                        isCoupon: false,
+                        parentId: ticketId
+                    };
+                    ticketsToSave.push(subTicket);
+                    subTickets.push(subTicket);
+                }
             }
         });
 
@@ -240,74 +268,60 @@ export default function POS() {
             mobile: mobileNumber,
             paymentMode: paymentMode as string | undefined,
             subTickets: subTickets, // Pass sub-tickets for printing
-            skipMaster: onlyCombos && subTickets.length > 0, // Skip master if only combos
+            skipMaster: true, // Skip summary receipt, print only individual tickets
             earnedPoints: mobileNumber ? (Math.floor(totalWithTax / 100) * 10) : 0
         });
 
-        // Save to Backend with Offline Fallback
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-
-            if (!isOnline) throw new Error('Offline');
-
-            // 1. Save Tickets
-            await Promise.all(ticketsToSave.map(t => axios.post(`${API_URL}/api/tickets`, t)));
-
-            // 2. Process Loyalty (Await to ensure it finishes)
-            if (mobileNumber && mobileNumber.length === 10) {
-                // Earn Points
-                if (totalWithTax >= 100) {
-                    try {
-                        const loyaltyRes = await axios.post(`${API_URL}/api/loyalty/earn`, {
-                            mobile: mobileNumber,
-                            amount: totalWithTax,
-                            ticketId
-                        });
-                        console.log('Loyalty Earn Success:', loyaltyRes.data);
-                        // Optional: Refresh local loyalty points state
-                        if (loyaltyRes.data.points !== undefined) {
-                            setLoyaltyPoints(loyaltyRes.data.points);
-                        }
-                    } catch (lErr) {
-                        console.error('Loyalty Earn Failed:', lErr);
-                    }
-                }
-
-                // Redeem Points (if reward is in cart)
-                const rewardItem = cart.find(i => i.id === 'reward-1');
-                if (rewardItem) {
-                    // Determine how many rewards were used
-                    for (let i = 0; i < rewardItem.quantity; i++) {
-                        try {
-                            await axios.post(`${API_URL}/api/loyalty/redeem`, {
-                                mobile: mobileNumber,
-                                ticketId
-                            });
-                        } catch (rErr) {
-                            console.error('Loyalty Redeem Failed:', rErr);
-                        }
-                    }
-                }
-            }
-
-        } catch (error) {
-            console.log('Backend unavailable, queueing ticket locally.');
-            const pending = JSON.parse(localStorage.getItem('pending_tickets') || '[]');
-            ticketsToSave.forEach(t => pending.push(t));
-            localStorage.setItem('pending_tickets', JSON.stringify(pending));
-            setPendingCount(prev => prev + ticketsToSave.length);
-        }
-
-        // setShowCheckoutModal(false); // Modal removed
-
-        // Wait for state update then print
+        // 3. Trigger Print Immediately (Fastest UX)
         setTimeout(() => {
             window.print();
-            // Show success message after print dialog loop
             setShowSuccessModal(true);
-            setCart([]); // Clear cart here after successful print flow
-            setPaymentMode(null); // Reset payment mode to null to hide print button
-        }, 500);
+            setCart([]);
+            setPaymentMode(null);
+        }, 100);
+
+        // 4. Save to Backend in Background (Non-blocking)
+        const saveToBackend = async () => {
+            try {
+                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+                if (!isOnline) throw new Error('Offline');
+
+                // Bulk Save Tickets
+                await axios.post(`${API_URL}/api/tickets`, ticketsToSave);
+
+                // Process Loyalty
+                if (mobileNumber && mobileNumber.length === 10) {
+                    if (totalWithTax >= 100) {
+                        try {
+                            const loyaltyRes = await axios.post(`${API_URL}/api/loyalty/earn`, {
+                                mobile: mobileNumber,
+                                amount: totalWithTax,
+                                ticketId
+                            });
+                            if (loyaltyRes.data.points !== undefined) {
+                                setLoyaltyPoints(loyaltyRes.data.points);
+                            }
+                        } catch (e) { }
+                    }
+                    const rewardItem = cart.find(i => i.id === 'reward-1');
+                    if (rewardItem) {
+                        for (let i = 0; i < rewardItem.quantity; i++) {
+                            try {
+                                await axios.post(`${API_URL}/api/loyalty/redeem`, { mobile: mobileNumber, ticketId });
+                            } catch (e) { }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Background save failed, queueing locally.');
+                const pending = JSON.parse(localStorage.getItem('pending_tickets') || '[]');
+                ticketsToSave.forEach(t => pending.push(t));
+                localStorage.setItem('pending_tickets', JSON.stringify(pending));
+                setPendingCount(prev => prev + ticketsToSave.length);
+            }
+        };
+
+        saveToBackend();
     };
 
     const handleReprint = async () => {
@@ -332,13 +346,16 @@ export default function POS() {
         // Handle SubTickets regeneration if needed
         let newSubTickets: any[] = [];
         if (printData.subTickets && printData.subTickets.length > 0) {
-            newSubTickets = printData.subTickets.map((t, index) => ({
-                ...t,
-                id: `${newTicketId}-C${index + 1}`,
-                parentId: newTicketId,
-                date: date,
-                createdAt: new Date().toISOString()
-            }));
+            newSubTickets = printData.subTickets.map((t, index) => {
+                const suffix = t.id.includes('-C') ? 'C' : 'R';
+                return {
+                    ...t,
+                    id: `${newTicketId}-${suffix}${index + 1}`,
+                    parentId: newTicketId,
+                    date: date,
+                    createdAt: new Date().toISOString()
+                };
+            });
         }
 
         const ticketsToSave = [newTicketData, ...newSubTickets];
@@ -390,7 +407,7 @@ export default function POS() {
                             <div className="relative group">
                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500 to-amber-300 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-200"></div>
                                 <img
-                                    src="/E4LOGO.jpeg"
+                                    src="E4LOGO.jpeg"
                                     alt="E4 Logo"
                                     className="relative w-10 h-10 md:w-12 md:h-12 rounded-lg object-contain bg-white ring-1 ring-slate-900"
                                 />
@@ -398,6 +415,12 @@ export default function POS() {
                             <div>
                                 <h1 className="text-lg md:text-xl font-black tracking-tight text-white leading-none">EFOUR <span className="text-amber-400">POS</span></h1>
                                 <p className="text-[10px] md:text-xs text-slate-400 font-medium tracking-wide hidden sm:block">ELURU ENTERTAINMENT NETWORK</p>
+                            </div>
+
+                            {/* User Info */}
+                            <div className="hidden lg:flex flex-col border-l border-slate-700 pl-4 ml-2">
+                                <span className="text-xs font-black text-white uppercase tracking-wider">{loggedUser.name || 'Staff'}</span>
+                                <span className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest">{loggedUser.role || 'POS Terminal'}</span>
                             </div>
 
                             {/* Status Indicators (Mobile Optimized) */}
@@ -437,9 +460,13 @@ export default function POS() {
 
                             <button
                                 onClick={handleLogout}
-                                className="group relative p-2 md:px-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                                className="group relative p-2 md:px-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors flex items-center gap-2"
                                 title="Logout"
                             >
+                                <div className="hidden sm:flex flex-col items-end mr-1 lg:hidden">
+                                    <span className="text-[10px] font-bold text-white leading-none mb-0.5">{loggedUser.name?.split(' ')[0]}</span>
+                                    <span className="text-[8px] font-bold text-slate-500 tracking-tighter uppercase">{loggedUser.role}</span>
+                                </div>
                                 <LogOut size={20} className="relative z-10" />
                             </button>
                         </div>
@@ -454,9 +481,20 @@ export default function POS() {
                                 Available Rides
                             </h2>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 md:gap-3 pb-24 md:pb-0">
-                                {rides.map(ride => (
-                                    <RideCard key={ride.id} ride={ride} onAdd={addToCart} />
-                                ))}
+                                {loadingRides ? (
+                                    <div className="col-span-full py-10 flex flex-col items-center justify-center text-slate-400">
+                                        <RefreshCw size={32} className="animate-spin mb-2" />
+                                        <span className="text-sm font-bold">Loading rides...</span>
+                                    </div>
+                                ) : rides.length === 0 ? (
+                                    <div className="col-span-full py-10 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
+                                        No rides available
+                                    </div>
+                                ) : (
+                                    rides.map(ride => (
+                                        <RideCard key={ride._id || ride.id} ride={ride} onAdd={addToCart} />
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

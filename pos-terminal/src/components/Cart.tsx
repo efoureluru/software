@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Ride } from '../data/rides';
 import { Trash2, Printer, ShoppingCart } from 'lucide-react';
 
@@ -20,7 +21,7 @@ interface CartProps {
     hasReward: boolean;
 }
 
-export function Cart({
+export const Cart = memo(function Cart({
     items,
     onUpdateQuantity,
     onClear,
@@ -64,7 +65,7 @@ export function Cart({
                     </div>
                 ) : (
                     items.map((item) => (
-                        <div key={item.id} className="group flex gap-3 items-start bg-white p-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200">
+                        <div key={item._id || item.id} className="group flex gap-3 items-start bg-white p-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200">
                             <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-100 shrink-0 relative">
                                 {item.image && <img src={item.image} alt="" className="w-full h-full object-cover" />}
                             </div>
@@ -75,12 +76,12 @@ export function Cart({
                             <div className="flex flex-col items-end gap-2">
                                 <div className="flex items-center bg-slate-50 rounded-lg border border-slate-200 p-0.5">
                                     <button
-                                        onClick={() => onUpdateQuantity(item.id, -1)}
+                                        onClick={() => onUpdateQuantity(item._id || item.id, -1)}
                                         className="w-6 h-6 flex items-center justify-center hover:bg-white rounded-md text-slate-500 transition-colors"
                                     >-</button>
                                     <span className="text-xs font-bold w-6 text-center text-slate-900">{item.quantity}</span>
                                     <button
-                                        onClick={() => onUpdateQuantity(item.id, 1)}
+                                        onClick={() => onUpdateQuantity(item._id || item.id, 1)}
                                         className="w-6 h-6 flex items-center justify-center hover:bg-white rounded-md text-slate-500 transition-colors"
                                     >+</button>
                                 </div>
@@ -206,4 +207,4 @@ export function Cart({
             </div>
         </div>
     );
-}
+});

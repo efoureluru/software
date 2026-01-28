@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import VerifyTicket from './pages/VerifyTicket';
 import AdminDashboard from './pages/AdminDashboard';
 import Accounts from './pages/Accounts';
+import RideManagement from './pages/RideManagement';
 
 function PrivateRoute({ children, role }: { children: React.ReactNode, role?: string }) {
   const token = localStorage.getItem('token');
@@ -85,6 +86,14 @@ function App() {
           element={
             <PrivateRoute role="admin">
               <Accounts />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin/rides"
+          element={
+            <PrivateRoute role="admin">
+              <RideManagement />
             </PrivateRoute>
           }
         />

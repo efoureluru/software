@@ -292,7 +292,7 @@ export default function AdminDashboard() {
                         <div className="relative group">
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-300 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-200"></div>
                             <img
-                                src="/E4LOGO.jpeg"
+                                src="E4LOGO.jpeg"
                                 alt="E4 Logo"
                                 className="relative w-10 h-10 md:w-12 md:h-12 rounded-lg object-contain bg-white ring-1 ring-slate-900"
                             />
@@ -301,6 +301,12 @@ export default function AdminDashboard() {
                             <h1 className="text-lg md:text-xl font-black tracking-tight text-white leading-none">EFOUR <span className="text-blue-400">ADMIN</span></h1>
                             <p className="text-[10px] md:text-xs text-slate-400 font-medium tracking-wide hidden sm:block">SYSTEM MANAGEMENT CONSOLE</p>
                         </div>
+                    </div>
+
+                    {/* User Info */}
+                    <div className="hidden lg:flex flex-col border-l border-slate-700 pl-4 ml-4">
+                        <span className="text-xs font-black text-white uppercase tracking-wider">{JSON.parse(localStorage.getItem('user') || '{}').name}</span>
+                        <span className="text-[10px] font-bold text-blue-400/80 uppercase tracking-widest">{JSON.parse(localStorage.getItem('user') || '{}').role}</span>
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-4">
@@ -385,17 +391,20 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    {/* Active Systems */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                    {/* Ride Management */}
+                    <div
+                        onClick={() => navigate('/admin/rides')}
+                        className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer group"
+                    >
                         <div className="flex items-center justify-between mb-4">
-                            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
-                                <Users size={24} />
+                            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <List size={24} />
                             </div>
-                            <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg uppercase tracking-wider">SYSTEMS</span>
+                            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg uppercase tracking-wider">Configure</span>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Users</p>
-                            <h3 className="text-3xl font-black text-slate-900">{users.length}</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Available Rides</p>
+                            <h3 className="text-3xl font-black text-slate-900">Manage Pricing</h3>
                         </div>
                     </div>
                 </div>

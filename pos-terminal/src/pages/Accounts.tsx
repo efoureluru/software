@@ -98,9 +98,9 @@ export default function Accounts() {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="hidden md:flex flex-col items-end mr-2">
-                            <span className="text-sm font-bold text-slate-200">Accountant</span>
-                            <span className="text-xs text-blue-400 font-medium">UPI Records</span>
+                        <div className="hidden md:flex flex-col items-end mr-2 border-r border-white/20 pr-4">
+                            <span className="text-sm font-black text-white">{JSON.parse(localStorage.getItem('user') || '{}').name}</span>
+                            <span className="text-[10px] text-blue-300 font-bold uppercase tracking-widest">{JSON.parse(localStorage.getItem('user') || '{}').role}</span>
                         </div>
                         <button
                             onClick={handleLogout}
