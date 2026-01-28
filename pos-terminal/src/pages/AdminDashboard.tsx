@@ -284,51 +284,77 @@ export default function AdminDashboard() {
     return (
         <div className="min-h-screen bg-slate-100 font-sans text-slate-900">
             {/* Header */}
-            <header className="bg-slate-900 text-white shadow-xl sticky top-0 z-20 border-b border-white/10">
-                <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+            {/* Premium Sticky Header */}
+            <header className="bg-slate-900 border-b border-slate-800 text-white p-3 md:p-4 shadow-xl z-20 sticky top-0">
+                <div className="container mx-auto flex items-center justify-between">
+                    {/* Logo & Brand */}
+                    <div className="flex items-center gap-3 md:gap-4">
                         <div className="relative group">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-200"></div>
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-300 rounded-lg blur opacity-50 group-hover:opacity-100 transition duration-200"></div>
                             <img
-                                src="/e3logo.jpeg"
-                                alt="Admin Logo"
-                                className="relative w-10 h-10 rounded-lg object-contain bg-white ring-2 ring-white/10"
+                                src="/E4LOGO.jpeg"
+                                alt="E4 Logo"
+                                className="relative w-10 h-10 md:w-12 md:h-12 rounded-lg object-contain bg-white ring-1 ring-slate-900"
                             />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black tracking-tight leading-none text-white">ETHREE POS</h1>
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-0.5">Admin Dashboard</p>
+                            <h1 className="text-lg md:text-xl font-black tracking-tight text-white leading-none">EFOUR <span className="text-blue-400">ADMIN</span></h1>
+                            <p className="text-[10px] md:text-xs text-slate-400 font-medium tracking-wide hidden sm:block">SYSTEM MANAGEMENT CONSOLE</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => setShowEmailModal(true)}
-                            className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                            Change User Email
-                        </button>
-                        <button
-                            onClick={() => setShowPasswordModal(true)}
-                            className="text-sm font-semibold text-amber-400 hover:text-amber-300 transition-colors mr-2"
-                        >
-                            Change User Password
-                        </button>
-                        <div className="hidden md:flex flex-col items-end mr-2">
-                            <span className="text-sm font-bold text-slate-200">Administrator</span>
-                            <span className="text-xs text-slate-500 font-medium">System Access</span>
+
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <div className="hidden md:flex items-center bg-slate-800/50 rounded-xl p-1 gap-1 border border-slate-700">
+                            <button
+                                onClick={() => setShowEmailModal(true)}
+                                className="px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-all"
+                            >
+                                Change Email
+                            </button>
+                            <div className="w-px h-4 bg-slate-700"></div>
+                            <button
+                                onClick={() => setShowPasswordModal(true)}
+                                className="px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-all"
+                            >
+                                Change Password
+                            </button>
                         </div>
+
+                        {/* Mobile Menu Trigger (Visible on small screens) */}
+                        <div className="md:hidden flex flex-col gap-1 items-end pr-2">
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Admin</span>
+                        </div>
+
+                        <div className="h-6 md:h-8 w-px bg-slate-800 mx-0.5"></div>
+
                         <button
                             onClick={handleLogout}
-                            className="bg-slate-800 hover:bg-rose-600 text-white p-2.5 rounded-xl transition-all shadow-lg border border-slate-700 hover:border-rose-500 group"
+                            className="group relative p-2 md:px-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
                             title="Logout"
                         >
-                            <LogOut size={20} className="group-hover:-translate-x-0.5 transition-transform" />
+                            <LogOut size={20} className="relative z-10" />
                         </button>
                     </div>
                 </div>
+
+                {/* Mobile Sub-Header for Actions */}
+                <div className="md:hidden border-t border-slate-800 mt-2 pt-2 flex justify-end gap-2 px-1">
+                    <button
+                        onClick={() => setShowEmailModal(true)}
+                        className="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider bg-slate-800/50 px-2 py-1.5 rounded border border-slate-700"
+                    >
+                        Change Email
+                    </button>
+                    <button
+                        onClick={() => setShowPasswordModal(true)}
+                        className="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider bg-slate-800/50 px-2 py-1'5 rounded border border-slate-700"
+                    >
+                        Change Pwd
+                    </button>
+                </div>
             </header>
 
-            <main className="container mx-auto p-6 max-w-7xl">
+            <main className="container mx-auto p-4 md:p-6 max-w-7xl">
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {/* Total Revenue */}
@@ -532,49 +558,50 @@ export default function AdminDashboard() {
                 )}
 
                 {/* View Switcher & Toolbar */}
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                    <div className="flex bg-slate-100 p-1.5 rounded-xl w-full md:w-auto">
+                {/* View Switcher & Toolbar */}
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
+                    <div className="grid grid-cols-3 md:flex bg-slate-100 p-1 rounded-xl w-full md:w-auto gap-1">
                         <button
                             onClick={() => setView('transactions')}
-                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg font-bold transition-all ${view === 'transactions' ? 'bg-white text-blue-600 shadow-md ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`flex items-center justify-center gap-1.5 px-2 py-2 md:px-6 md:py-2.5 rounded-lg font-bold text-[10px] md:text-sm transition-all ${view === 'transactions' ? 'bg-white text-blue-600 shadow-md ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
                         >
-                            <List size={18} />
+                            <List size={14} className="md:w-4 md:h-4" />
                             <span>Transactions</span>
                         </button>
                         <button
                             onClick={() => setView('analytics')}
-                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg font-bold transition-all ${view === 'analytics' ? 'bg-white text-blue-600 shadow-md ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`flex items-center justify-center gap-1.5 px-2 py-2 md:px-6 md:py-2.5 rounded-lg font-bold text-[10px] md:text-sm transition-all ${view === 'analytics' ? 'bg-white text-blue-600 shadow-md ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
                         >
-                            <BarChart3 size={18} />
+                            <BarChart3 size={14} className="md:w-4 md:h-4" />
                             <span>Analytics</span>
                         </button>
                         <button
                             onClick={() => setView('users')}
-                            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg font-bold transition-all ${view === 'users' ? 'bg-white text-blue-600 shadow-md ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`flex items-center justify-center gap-1.5 px-2 py-2 md:px-6 md:py-2.5 rounded-lg font-bold text-[10px] md:text-sm transition-all ${view === 'users' ? 'bg-white text-blue-600 shadow-md ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
                         >
-                            <Users size={18} />
+                            <Users size={14} className="md:w-4 md:h-4" />
                             <span>Users</span>
                         </button>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 items-center justify-center md:justify-end w-full md:w-auto">
+                    <div className="flex flex-col sm:flex-row gap-3 items-center justify-end w-full md:w-auto">
                         {(view === 'transactions' || view === 'users') && (
-                            <div className="relative w-full md:w-72">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <div className="relative w-full sm:w-64 md:w-72">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                                 <input
                                     type="text"
-                                    placeholder={view === 'transactions' ? "Search ID or Mobile..." : "Search Name or Email..."}
-                                    className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none font-medium"
+                                    placeholder={view === 'transactions' ? "Search ID or Mobile..." : "Search Name..."}
+                                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 outline-none font-medium text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
                         )}
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full sm:w-auto justify-end">
                             <button
                                 onClick={fetchTickets}
-                                className="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600 font-bold transition-all shadow-sm active:scale-95"
+                                className="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600 transition-all shadow-sm flex-none"
                                 title="Refresh Data"
                             >
                                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -582,18 +609,18 @@ export default function AdminDashboard() {
 
                             <button
                                 onClick={view === 'transactions' ? downloadCSV : downloadAnalyticsCSV}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold transition-all shadow-md active:scale-95"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold text-xs md:text-sm transition-all shadow-md"
                             >
-                                <Download size={18} />
-                                <span className="hidden sm:inline">{view === 'transactions' ? 'All Transactions' : '7-Day Report'}</span>
+                                <Download size={16} />
+                                <span className={view === 'transactions' ? "hidden xl:inline" : ""}>{view === 'transactions' ? 'Export' : 'Report'}</span>
                             </button>
 
                             <button
                                 onClick={() => navigate('/accounts')}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold transition-all shadow-md active:scale-95"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold text-xs md:text-sm transition-all shadow-md"
                             >
-                                <Receipt size={18} />
-                                <span className="hidden sm:inline">Accounts</span>
+                                <Receipt size={16} />
+                                <span className="hidden xl:inline">Accounts</span>
                             </button>
 
                             <button
