@@ -228,7 +228,7 @@ export default function POS() {
             id: ticketId,
             amount: regularTotal,
             date: date,
-            items: cart,
+            items: cart.map(sanitizeRide),
             status: 'valid',
             mobile: mobileNumber,
             paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
@@ -291,7 +291,7 @@ export default function POS() {
 
         // Set print data for the Ticket component
         setPrintData({
-            items: [...cart],
+            items: cart.map(sanitizeRide),
             total: totalWithTax,
             date: date,
             id: ticketId,
