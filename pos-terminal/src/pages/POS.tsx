@@ -451,7 +451,7 @@ export default function POS() {
                                 />
                             </div>
                             <div>
-                                <h1 className="text-lg md:text-xl font-black tracking-tight text-white leading-none flex items-center gap-1.5">EFOUR <span className="text-amber-400">POS</span> <span className="text-xs text-amber-400 font-bold bg-amber-900 px-1 rounded ring-1 ring-amber-500/50">v4.1</span> <span className="text-[9px] bg-sky-500 text-white px-1 rounded-full animate-pulse tracking-tighter shadow-[0_0_10px_rgba(14,165,233,0.5)]">SECURE v4.1</span></h1>
+                                <h1 className="text-lg md:text-xl font-black tracking-tight text-white leading-none flex items-center gap-1.5">EFOUR <span className="text-amber-400">POS</span> <span className="text-xs text-amber-400 font-bold bg-amber-900 px-1 rounded ring-1 ring-amber-500/50">v4.2</span> <span className="text-[9px] bg-sky-500 text-white px-1 rounded-full animate-pulse tracking-tighter shadow-[0_0_10px_rgba(14,165,233,0.5)]">SECURE v4.2</span></h1>
                                 <p className="text-[10px] md:text-xs text-slate-400 font-medium tracking-wide hidden sm:block">ELURU ENTERTAINMENT NETWORK</p>
                             </div>
 
@@ -525,8 +525,19 @@ export default function POS() {
                                         <span className="text-sm font-bold">Loading rides...</span>
                                     </div>
                                 ) : rides.length === 0 ? (
-                                    <div className="col-span-full py-10 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">
-                                        No rides available
+                                    <div className="flex flex-col items-center justify-center h-full py-20 text-slate-400 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50">
+                                        <div className="p-4 bg-slate-100 rounded-full mb-4">
+                                            <TicketIcon size={40} className="opacity-20" />
+                                        </div>
+                                        <h3 className="text-lg font-bold text-slate-500">NO RIDES AVAILABLE</h3>
+                                        <p className="text-sm">Check your connection or try refreshing.</p>
+                                        <p className="text-[10px] bg-slate-200 px-2 py-0.5 rounded mt-4 font-mono">API: {import.meta.env.VITE_API_URL || 'http://localhost:5001'}</p>
+                                        <button
+                                            onClick={() => window.location.reload()}
+                                            className="mt-6 px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg"
+                                        >
+                                            REFRESH NOW
+                                        </button>
                                     </div>
                                 ) : (
                                     rides.map(ride => (
