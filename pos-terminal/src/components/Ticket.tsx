@@ -72,9 +72,9 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
 
                         <div className="flex-1 flex flex-col justify-center border-y-2 border-dashed border-black/20 py-0.5">
                             {isCoupon ? (
-                                <div className="border-4 border-black text-black px-2 py-2">
-                                    <span className="font-black leading-none uppercase block" style={{ fontSize: '26pt' }}>{displayItems[0]?.name || 'ANY RIDE'}</span>
-                                    <span className="font-bold uppercase block mt-1 border-t-2 border-black pt-1" style={{ fontSize: '10pt' }}>PASS • EFOUR</span>
+                                <div className="border-2 border-black text-black px-1.5 py-1.5">
+                                    <span className="font-black leading-none uppercase block" style={{ fontSize: '18pt' }}>{displayItems[0]?.name || 'ANY RIDE'}</span>
+                                    <span className="font-bold uppercase block mt-1 border-t border-black pt-1" style={{ fontSize: '8pt' }}>PASS • EFOUR</span>
                                 </div>
                             ) : (
                                 <div className="space-y-0.5 text-left px-1">
@@ -135,12 +135,12 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
                 </div>
 
                 {/* HIGH-CONTRAST DARK WEBSITE FOOTER */}
-                <div className="border-t-2 border-black bg-white text-black py-2.5 text-center px-2">
-                    <div className="border-2 border-black py-1">
-                        <p style={{ fontSize: '8pt' }} className="font-black uppercase tracking-tight">VALID ON BOOKED DATE ONLY • EXPIRES AFTER SCAN</p>
+                <div className="border-t-2 border-black bg-white text-black py-1.5 text-center px-1">
+                    <div className="border border-black py-0.5">
+                        <p style={{ fontSize: '7pt' }} className="font-black uppercase tracking-tight">VALID ON BOOKED DATE ONLY • EXPIRES AFTER SCAN</p>
                     </div>
-                    <div className="mt-2 border-4 border-black py-1">
-                        <p style={{ fontSize: '14pt' }} className="font-black tracking-widest leading-none">WWW.EFOUR-ELURU.COM</p>
+                    <div className="mt-1.5 border-2 border-black py-1">
+                        <p style={{ fontSize: '12pt' }} className="font-black tracking-widest leading-none">WWW.EFOUR-ELURU.COM</p>
                     </div>
                 </div>
 
