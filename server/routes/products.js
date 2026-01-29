@@ -31,8 +31,8 @@ const seedInitialData = async () => {
         console.log('🚀 SEEDING v2.7: Injecting fresh ride data...');
 
         const initialRides = [
-            { id: '19', name: 'Combo Adult (5 Rides)', price: 500, description: '5 Rides for Adults.', image: 'combo adult/E4LOGO.jpeg', category: 'play', version: '2.7' },
-            { id: '20', name: 'Combo Child (5 Rides)', price: 500, description: '5 Rides for Children.', image: 'combo child/E4LOGO.jpeg', category: 'play', version: '2.7' },
+            { id: '19', name: 'Combo Adult (6 Rides)', price: 500, description: '6 Rides for Adults.', image: 'combo adult/E4LOGO.jpeg', category: 'play', version: '3.3' },
+            { id: '20', name: 'Combo Child (6 Rides)', price: 500, description: '6 Rides for Children.', image: 'combo child/E4LOGO.jpeg', category: 'play', version: '3.3' },
             { id: '1', name: 'Balloon Shooting', price: 100, description: 'Aim and fire to win prizes.', image: 'baloon shooting/IMG_8435.jpg', category: 'play', version: '2.7' },
             { id: '2', name: 'Bouncy', price: 100, description: 'Safe inflatable fun for kids.', image: 'bouncy/WhatsApp_Image_2025-06-14_at_4.02.45_PM.jpeg', category: 'play', version: '2.7' },
             { id: '3', name: 'Bull Ride', price: 100, description: 'Test your strength and balance.', image: 'bull ride/IMG_8384.jpg', category: 'play', version: '2.7' },
