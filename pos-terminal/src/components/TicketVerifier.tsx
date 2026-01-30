@@ -43,7 +43,8 @@ export function TicketVerifier() {
 
         try {
             // Backend lookup
-            const response = await axios.get(`http://localhost:5001/api/tickets/${searchId}`);
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-ksid.vercel.app';
+            const response = await axios.get(`${API_URL}/api/tickets/${searchId}`);
             const ticket = response.data;
 
             if (ticket.status === 'used') {

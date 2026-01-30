@@ -93,7 +93,7 @@ export default function RideManagement() {
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-ksid.vercel.app';
             const token = localStorage.getItem('token');
             // Auto-generate ID if missing
             const submitData = { ...formData, id: formData.id || Date.now().toString() };
