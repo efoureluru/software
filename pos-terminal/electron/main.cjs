@@ -6,7 +6,7 @@ function createWindow() {
         width: 1280,
         height: 800,
         title: "EFOUR POS",
-        icon: path.join(__dirname, '../public/E4LOGO.jpeg'), // Ensure this path is correct after build
+        icon: path.join(__dirname, app.isPackaged ? '../dist/E4LOGO.jpeg' : '../public/E4LOGO.jpeg'), // Correct path for development and production
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false

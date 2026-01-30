@@ -42,7 +42,10 @@ export default function Login() {
     return (
         <div className="min-h-screen bg-[#a855f7] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background Image */}
-            <div className="absolute inset-0 bg-[url('./blur-background-vibrant-ferris-wheel-600nw-2588560711.webp')] bg-cover bg-center"></div>
+            <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url('blur-background-vibrant-ferris-wheel-600nw-2588560711.webp')` }}
+            ></div>
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 to-slate-900/60 backdrop-blur-[2px]"></div>
 
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-white/20 relative z-10 animate-in fade-in zoom-in duration-500">
