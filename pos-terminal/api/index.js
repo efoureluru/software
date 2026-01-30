@@ -60,8 +60,9 @@ app.use(async (req, res, next) => {
         console.error('Database Connection Failed:', error);
         res.status(500).json({
             error: 'Database Connection Failed',
-            details: error.message,
-            stack: error.stack
+            message: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+            hint: 'Check if MONGO_URI is set in Vercel and if IP 0.0.0.0/0 is allowed in Atlas.'
         });
     }
 });
