@@ -62,20 +62,39 @@ app.use(async (req, res, next) => {
     }
 });
 
+// Debugging middleware for Vercel
+app.use((req, res, next) => {
+    console.log(`[API] ${req.method} ${req.url}`);
+    next();
+});
+
 // Import Routes from the server directory
 const authRoutes = require('../server/routes/auth');
 const productRoutes = require('../server/routes/products');
 const orderRoutes = require('../server/routes/orders');
 const bookingRoutes = require('../server/routes/bookings');
 
+// Flexible routing: Handle both /api/auth and /auth
+// Vercel sometimes strips the /api prefix before passing it to the function
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
+
 app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes);
+
 app.use('/api/bookings', bookingRoutes);
+app.use('/bookings', bookingRoutes);
 
 // Root Route
 app.get('/api', (req, res) => {
     res.send('Ethree Express API is running on Vercel.');
+});
+
+app.get('/', (req, res) => {
+    res.send('Ethree Express API is running on Vercel (Root).');
 });
 
 // Export the app for Vercel
