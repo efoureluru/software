@@ -531,7 +531,7 @@ export default function POS() {
                                         </div>
                                         <h3 className="text-lg font-bold text-slate-500">NO RIDES AVAILABLE</h3>
                                         <p className="text-sm">Check your connection or try refreshing.</p>
-                                        <p className="text-[10px] bg-slate-200 px-2 py-0.5 rounded mt-4 font-mono">API: {import.meta.env.VITE_API_URL || 'https://software-ksid.vercel.app'}</p>
+                                        <p className="text-[10px] bg-slate-200 px-2 py-0.5 rounded mt-4 font-mono">API: {import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app'}</p>
                                         <button
                                             onClick={() => window.location.reload()}
                                             className="mt-6 px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg"
