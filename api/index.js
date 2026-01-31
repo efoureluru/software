@@ -63,7 +63,11 @@ app.use(async (req, res, next) => {
             error: 'Database Connection Failed',
             message: error.message,
             stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-            hint: 'Check if MONGO_URI is set in Vercel and if IP 0.0.0.0/0 is allowed in Atlas.'
+            hint: 'Check if MONGO_URI is set in Vercel and if IP 0.0.0.0/0 is allowed in Atlas.',
+            env_check: {
+                has_mongo: !!(process.env.MONGO_URI || process.env.MONGODB_URI),
+                node_env: process.env.NODE_ENV
+            }
         });
     }
 });

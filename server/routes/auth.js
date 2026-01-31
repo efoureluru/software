@@ -97,7 +97,12 @@ router.post('/login', async (req, res) => {
         res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         console.error('[AUTH] Login Exception:', err);
-        res.status(500).json({ message: 'Internal server error', error: err.message });
+        res.status(500).json({
+            message: 'Internal server error',
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+            dbState: mongoose.connection.readyState
+        });
     }
 });
 
