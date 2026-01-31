@@ -15,4 +15,4 @@ const ticketSchema = new mongoose.Schema({
     usedAt: { type: Date }
 });
 
-module.exports = mongoose.model('Ticket', ticketSchema);
+module.exports = mongoose.models.Ticket || mongoose.model('Ticket', ticketSchema);

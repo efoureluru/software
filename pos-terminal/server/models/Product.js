@@ -12,4 +12,4 @@ const productSchema = new mongoose.Schema({
     type: { type: String } // e.g., 'mandi', 'momo', 'ride', 'hall'
 });
 
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.models.Product || mongoose.model('Product', productSchema);
