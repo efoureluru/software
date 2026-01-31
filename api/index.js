@@ -35,7 +35,7 @@ const connectDB = async () => {
             socketTimeoutMS: 45000,
         };
 
-        const MONGO_FALLBACK = "mongodb+srv://Vercel-Admin-EFOUR:52sxxM83PIPKobvk@efour.ojwn6t6.mongodb.net/?retryWrites=true&w=majority";
+        const MONGO_FALLBACK = "mongodb+srv://Vercel-Admin-EFOUR:52sxxM83PIPKobvk@efour.ojwn6t6.mongodb.net/ethree?retryWrites=true&w=majority";
         cached.promise = mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || MONGO_FALLBACK, opts).then((mongoose) => {
             console.log(' New MongoDB Connection Established');
             return mongoose;
