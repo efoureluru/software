@@ -34,7 +34,7 @@ export default function RideManagement() {
     const fetchRides = async () => {
         setLoading(true);
         try {
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const response = await axios.get(`${API_URL}/api/products`);
             setRides(response.data);
         } catch (error) {
@@ -61,7 +61,7 @@ export default function RideManagement() {
         if (!editingRide) return;
 
         try {
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const token = localStorage.getItem('token');
             await axios.put(`${API_URL}/api/products/${editingRide._id}`, formData, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -78,7 +78,7 @@ export default function RideManagement() {
         if (!confirm('Are you sure you want to delete this ride?')) return;
 
         try {
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const token = localStorage.getItem('token');
             await axios.delete(`${API_URL}/api/products/${mongoId}`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -93,7 +93,7 @@ export default function RideManagement() {
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'https://software-ksid.vercel.app';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const token = localStorage.getItem('token');
             // Auto-generate ID if missing
             const submitData = { ...formData, id: formData.id || Date.now().toString() };

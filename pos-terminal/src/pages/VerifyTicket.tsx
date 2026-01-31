@@ -42,7 +42,7 @@ export default function VerifyTicket() {
         setStatus('idle');
         setTicketData(null);
 
-        const API_URL = import.meta.env.VITE_API_URL || '';
+        const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
 
         try {
             // Use the verify endpoint to redeem

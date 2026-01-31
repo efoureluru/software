@@ -68,7 +68,7 @@ export default function POS() {
             setLoadingRides(true);
             try {
                 // Use relative path (/api) in production by default
-                const API_URL = import.meta.env.VITE_API_URL || '';
+                const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
                 // Append timestamp to prevent caching
                 const response = await axios.get(`${API_URL}/api/products?t=${Date.now()}`);
                 console.log('Fetched Rides:', response.data);

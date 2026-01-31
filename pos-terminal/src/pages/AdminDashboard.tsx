@@ -43,7 +43,7 @@ export default function AdminDashboard() {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             // Clear Tickets
             await axios.delete(`${API_URL}/api/tickets/clear-all`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
     const fetchTickets = async () => {
         setLoading(true);
         try {
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const response = await axios.get(`${API_URL}/api/tickets`);
 
             // FIX: Filter out "Sub-Tickets" (Coupons) to avoid double counting transactions.
@@ -90,7 +90,7 @@ export default function AdminDashboard() {
 
     const fetchUsers = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const token = localStorage.getItem('token');
             const response = await axios.get(`${API_URL}/api/auth/users`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
         setPasswordMessage('');
         try {
             const token = localStorage.getItem('token');
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             await axios.post(
                 `${API_URL}/api/auth/change-password`,
                 passwordData,
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
         setEmailMessage('');
         try {
             const token = localStorage.getItem('token');
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             await axios.post(
                 `${API_URL}/api/auth/change-email`,
                 emailData,

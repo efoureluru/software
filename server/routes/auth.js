@@ -68,11 +68,13 @@ router.post('/login', async (req, res) => {
         const { email, password } = req.body;
         console.log(`[AUTH] Login attempt: ${email}`);
 
+        /* 
         // Check if DB is connected
         if (mongoose.connection.readyState !== 1) {
             console.error('[AUTH] Database not connected. State:', mongoose.connection.readyState);
             return res.status(500).json({ message: 'Database connection error' });
         }
+        */
 
         const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {

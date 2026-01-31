@@ -56,6 +56,7 @@ const connectDB = async () => {
 app.use(async (req, res, next) => {
     try {
         await connectDB();
+        console.log('[API] DB Connected. State:', mongoose.connection.readyState);
         next();
     } catch (error) {
         console.error('Database Connection Failed:', error);

@@ -27,7 +27,7 @@ export default function Accounts() {
     const fetchTickets = async () => {
         setLoading(true);
         try {
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const response = await axios.get(`${API_URL}/api/tickets`);
             // Filter only UPI tickets for Accounts page
             const upiTickets = response.data.filter((t: any) => t.paymentMode?.toLowerCase() === 'upi');
