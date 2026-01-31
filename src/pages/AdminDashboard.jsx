@@ -6,14 +6,15 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('orders');
     const [orders, setOrders] = useState([]);
     const [bookings, setBookings] = useState([]);
+    const API_URL = 'https://software-tawny-gamma.vercel.app';
 
     useEffect(() => {
         const fetchData = async () => {
             const token = localStorage.getItem('token');
             try {
                 const [ordersRes, bookingsRes] = await Promise.all([
-                    fetch('http://localhost:5001/api/orders/all', { headers: { 'x-auth-token': token } }), // I need to add /all endpoint
-                    fetch('http://localhost:5001/api/bookings', { headers: { 'x-auth-token': token } })
+                    fetch(`${API_URL}/api/orders/all`, { headers: { 'x-auth-token': token } }),
+                    fetch(`${API_URL}/api/bookings`, { headers: { 'x-auth-token': token } })
                 ]);
                 const ordersData = await ordersRes.json();
                 const bookingsData = await bookingsRes.json();
