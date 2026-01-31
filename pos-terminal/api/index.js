@@ -35,7 +35,8 @@ const connectDB = async () => {
             socketTimeoutMS: 45000,
         };
 
-        cached.promise = mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI, opts).then((mongoose) => {
+        const MONGO_FALLBACK = "mongodb+srv://Vercel-Admin-EFOUR:52sxxM83PIPKobvk@efour.ojwn6t6.mongodb.net/ethree?retryWrites=true&w=majority";
+        cached.promise = mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || MONGO_FALLBACK, opts).then((mongoose) => {
             console.log(' New MongoDB Connection Established');
             return mongoose;
         });
@@ -55,6 +56,7 @@ const connectDB = async () => {
 app.use(async (req, res, next) => {
     try {
         await connectDB();
+        console.log('[API] DB Connected. State:', mongoose.connection.readyState);
         next();
     } catch (error) {
         console.error('Database Connection Failed:', error);
@@ -62,7 +64,12 @@ app.use(async (req, res, next) => {
             error: 'Database Connection Failed',
             message: error.message,
             stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-            hint: 'Check if MONGO_URI is set in Vercel and if IP 0.0.0.0/0 is allowed in Atlas.'
+            hint: 'Check if MONGO_URI is set in Vercel and if IP 0.0.0.0/0 is allowed in MongoDB Atlas.',
+            env_check: {
+                has_mongo: !!(process.env.MONGO_URI || process.env.MONGODB_URI),
+                node_env: process.env.NODE_ENV,
+                db_state: mongoose.connection.readyState
+            }
         });
     }
 });
