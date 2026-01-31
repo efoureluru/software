@@ -6,6 +6,10 @@
             "use": "@vercel/node"
         }
     ],
+    "env": {
+        "MONGO_URI": "mongodb+srv://Vercel-Admin-EFOUR:52sxxM83PIPKobvk@efour.ojwn6t6.mongodb.net/?retryWrites=true&w=majority",
+        "JWT_SECRET": "ethree_fallback_secret_key_2024"
+    },
     "rewrites": [
         {
             "source": "/api/(.*)",
