@@ -66,15 +66,12 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(`[AUTH] Login attempt: ${email}`);
+        console.log(`[AUTH] Login attempt: ${email || 'UNDEFINED'}`);
 
-        /* 
-        // Check if DB is connected
-        if (mongoose.connection.readyState !== 1) {
-            console.error('[AUTH] Database not connected. State:', mongoose.connection.readyState);
-            return res.status(500).json({ message: 'Database connection error' });
+        if (!email || !password) {
+            console.log(`[AUTH] Login failed: Missing credentials. Email: ${!!email}, Password: ${!!password}`);
+            return res.status(400).json({ message: 'Email and password are required' });
         }
-        */
 
         const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {
@@ -90,8 +87,8 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        if (!JWT_SECRET || JWT_SECRET === 'your_jwt_secret_key_here') {
-            console.warn('[AUTH] WARNING: JWT_SECRET is not properly configured.');
+        if (!JWT_SECRET || JWT_SECRET === 'your_jwt_secret_key_here' || JWT_SECRET === 'ethree_fallback_secret_key_2024') {
+            console.warn('[AUTH] WARNING: Using fallback or default JWT_SECRET.');
         }
 
         const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
@@ -100,10 +97,12 @@ router.post('/login', async (req, res) => {
     } catch (err) {
         console.error('[AUTH] Login Exception:', err);
         res.status(500).json({
-            message: 'Internal server error',
+            message: 'Internal server error during login',
             error: err.message,
             stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-            dbState: mongoose.connection.readyState
+            dbState: mongoose.connection.readyState,
+            hasBody: !!req.body,
+            bodyKeys: req.body ? Object.keys(req.body) : []
         });
     }
 });
