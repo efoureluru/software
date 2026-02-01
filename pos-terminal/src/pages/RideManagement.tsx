@@ -35,7 +35,7 @@ export default function RideManagement() {
         setLoading(true);
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
-            const response = await axios.get(`${API_URL}/api/products`);
+            const response = await axios.get(`${API_URL}/api/products?t=${Date.now()}`);
             setRides(response.data);
         } catch (error) {
             console.error('Failed to fetch rides', error);
@@ -54,6 +54,7 @@ export default function RideManagement() {
             image: ride.image || ''
         });
         setIsAdding(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -131,6 +132,7 @@ export default function RideManagement() {
                             setIsAdding(true);
                             setEditingRide(null);
                             setFormData({ name: '', price: 0, description: '', id: '', image: '' });
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
                         className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 font-bold text-sm transition-all shadow-lg shadow-blue-900/20 active:scale-95"
                     >

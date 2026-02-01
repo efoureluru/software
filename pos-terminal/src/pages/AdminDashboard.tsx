@@ -49,11 +49,15 @@ export default function AdminDashboard() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // Clear Orders (if applicable)
-            // await axios.delete(`${API_URL}/api/orders/clear-all`, { headers: { Authorization: `Bearer ${token}` } });
+            // Clear Orders
+            await axios.delete(`${API_URL}/api/orders/clear-all`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
-            // Clear Bookings (if applicable)
-            // await axios.delete(`${API_URL}/api/bookings/clear-all`, { headers: { Authorization: `Bearer ${token}` } });
+            // Clear Bookings
+            await axios.delete(`${API_URL}/api/bookings/clear-all`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
             setTickets([]);
             // setClearConfirmText(''); // This line is not in the provided content, but it's part of the original function. I should be careful not to remove too much.

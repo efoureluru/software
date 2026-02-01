@@ -70,4 +70,20 @@ router.post('/checkout', auth, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/orders/clear-all:
+ *   delete:
+ *     summary: Delete all orders (Admin only)
+ *     tags: [Orders]
+ */
+router.delete('/clear-all', auth, admin, async (req, res) => {
+    try {
+        await Order.deleteMany({});
+        res.json({ message: 'All orders cleared successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;

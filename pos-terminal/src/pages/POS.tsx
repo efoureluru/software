@@ -24,13 +24,6 @@ export default function POS() {
     const [rides, setRides] = useState<Ride[]>([]);
     const [loadingRides, setLoadingRides] = useState(true);
 
-    // Fail-safe sanitization to ensure "6 Rides" is always displayed
-    const sanitizeRide = (ride: any) => ({
-        ...ride,
-        name: ride.name.replace(/\(5\s*Rides\)/gi, '(6 Rides)'),
-        description: ride.description.replace(/5\s*Rides/gi, '6 Rides')
-    });
-
     const loggedUser = useMemo(() => JSON.parse(localStorage.getItem('user') || '{}'), []);
 
     // State to hold the ticket currently being printed/reprinted
@@ -72,8 +65,7 @@ export default function POS() {
                 // Append timestamp to prevent caching
                 const response = await axios.get(`${API_URL}/api/products?t=${Date.now()}`);
                 console.log('Fetched Rides:', response.data);
-                const sanitized = response.data.map(sanitizeRide);
-                setRides(sanitized);
+                setRides(response.data);
             } catch (error) {
                 console.error('Failed to fetch rides', error);
                 // Fallback to static rides if API fails? 
@@ -235,7 +227,7 @@ export default function POS() {
             id: ticketId,
             amount: regularTotal,
             date: date,
-            items: cart.map(sanitizeRide),
+            items: cart,
             status: 'valid',
             mobile: mobileNumber,
             paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
@@ -298,7 +290,7 @@ export default function POS() {
 
         // Set print data for the Ticket component
         setPrintData({
-            items: cart.map(sanitizeRide),
+            items: cart,
             total: totalWithTax,
             date: date,
             id: ticketId,

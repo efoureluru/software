@@ -12,25 +12,16 @@ const { auth, admin } = require('../middleware/auth');
  *     tags: [Products]
  */
 // Initial Seeding Logic (Run on request to ensure serverless execution)
-let isSeeded = false;
-
+// Initial Seeding Logic (Run on request to ensure serverless execution)
 const seedInitialData = async () => {
     try {
-        console.log('☢️ NUCLEAR SYNC START: Purging all database records...');
-
-        try {
-            await Product.collection.drop();
-            console.log('✅ Collection dropped successfully.');
-        } catch (e) {
-            console.log('ℹ️ Collection did not exist or drop failed, proceeding to deleteMany');
-            await Product.deleteMany({});
+        const count = await Product.countDocuments();
+        if (count > 0) {
+            console.log('✅ Products already exist. Skipping seed.');
+            return;
         }
 
-        const countAfterPurge = await Product.countDocuments();
-        console.log(`🧹 DB Count after purge: ${countAfterPurge}`);
-
-        console.log('🚀 SEEDING v3.7: Injecting fresh ride data...');
-
+        console.log('🚀 SEEDING v3.8: Injecting fresh ride data...');
         const initialRides = [
             { id: '19', name: 'Combo Adult (6 Rides)', price: 500, description: '6 Rides for Adults.', image: 'combo adult/E4LOGO.jpeg', category: 'play', version: '3.8' },
             { id: '20', name: 'Combo Child (6 Rides)', price: 500, description: '6 Rides for Children.', image: 'combo child/E4LOGO.jpeg', category: 'play', version: '3.8' },
@@ -55,8 +46,7 @@ const seedInitialData = async () => {
         ];
 
         await Product.insertMany(initialRides);
-        console.log('Successfully synchronized v3.8 individual ride data.');
-        isSeeded = true;
+        console.log('Successfully seeded default ride data.');
     } catch (e) {
         console.error('Failed to seed rides', e);
     }
@@ -64,7 +54,9 @@ const seedInitialData = async () => {
 
 router.get('/', async (req, res) => {
     try {
-        if (!isSeeded) {
+        const count = await Product.countDocuments();
+        if (count === 0) {
+            console.log('Database empty, triggering seed...');
             await seedInitialData();
         }
         const products = await Product.find();
@@ -74,16 +66,14 @@ router.get('/', async (req, res) => {
     }
 });
 
-module.exports = router;
-
 /**
  * @swagger
  * /api/products:
  *   post:
- *     summary: Create a product (Admin only - HOTFIX: Open for now)
+ *     summary: Create a product (Admin only)
  *     tags: [Products]
  */
-router.post('/', async (req, res) => {
+router.post('/', auth, admin, async (req, res) => {
     try {
         const product = await Product.create(req.body);
         res.status(201).json(product);
@@ -99,35 +89,24 @@ router.post('/', async (req, res) => {
  *     summary: Manually force database re-seeding (Nuclear Option)
  *     tags: [Products]
  */
-router.get('/force-reset', async (req, res) => {
+router.get('/force-reset', auth, admin, async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-
     try {
         console.log('Force Reset Triggered');
+        await Product.deleteMany({});
         await seedInitialData();
         const count = await Product.countDocuments();
-        res.json({ message: 'Database forcefully reset to defaults.', productCount: count, timestamp: new Date().toISOString() });
+        res.json({ message: 'Database forcefully reset to defaults.', productCount: count });
     } catch (err) {
         console.error('Reset Failed:', err);
-        res.status(500).json({ message: err.message, stack: err.stack });
+        res.status(500).json({ message: err.message });
     }
 });
 
 router.get('/debug-db', async (req, res) => {
-    res.setHeader('Cache-Control', 'no-store');
     try {
         const count = await Product.countDocuments();
-        const products = await Product.find({}, 'name price id').limit(5);
-        res.json({
-            status: 'Connected',
-            dbName: mongoose.connection.name,
-            host: mongoose.connection.host,
-            productCount: count,
-            sample: products,
-            time: new Date().toISOString()
-        });
+        res.json({ status: 'Connected', productCount: count, time: new Date().toISOString() });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -137,10 +116,10 @@ router.get('/debug-db', async (req, res) => {
  * @swagger
  * /api/products/:id:
  *   put:
- *     summary: Update a product (Admin only - HOTFIX: Open for now)
+ *     summary: Update a product (Admin only)
  *     tags: [Products]
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, admin, async (req, res) => {
     try {
         const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -154,10 +133,10 @@ router.put('/:id', async (req, res) => {
  * @swagger
  * /api/products/:id:
  *   delete:
- *     summary: Delete a product (Admin only - HOTFIX: Open for now)
+ *     summary: Delete a product (Admin only)
  *     tags: [Products]
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, admin, async (req, res) => {
     try {
         const success = await Product.findByIdAndDelete(req.params.id);
         if (!success) return res.status(404).json({ message: 'Product not found' });

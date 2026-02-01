@@ -66,24 +66,35 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        console.log(`[AUTH] Login attempt: ${email || 'UNDEFINED'}`);
+        console.log(`[AUTH] Login attempt incoming: ${email || 'UNDEFINED'}`);
 
         if (!email || !password) {
             console.log(`[AUTH] Login failed: Missing credentials. Email: ${!!email}, Password: ${!!password}`);
             return res.status(400).json({ message: 'Email and password are required' });
         }
 
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const normalizedEmail = String(email).toLowerCase();
+        console.log(`[AUTH] Searching for user: ${normalizedEmail}`);
+
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
-            console.log(`[AUTH] User not found: ${email}`);
+            console.log(`[AUTH] User not found in DB: ${normalizedEmail}`);
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        console.log(`[AUTH] User found: ${user.email}, Role: ${user.role}`);
+        console.log(`[AUTH] User found: ${user.email}, Role: ${user.role}. Starting password comparison.`);
 
-        const isMatch = await user.comparePassword(password);
+        let isMatch = false;
+        try {
+            isMatch = await user.comparePassword(password);
+            console.log(`[AUTH] Password match result: ${isMatch}`);
+        } catch (bcryptErr) {
+            console.error('[AUTH] Bcrypt Comparison Error:', bcryptErr);
+            throw new Error(`Bcrypt failure: ${bcryptErr.message}`);
+        }
+
         if (!isMatch) {
-            console.log(`[AUTH] Password mismatch for: ${email}`);
+            console.log(`[AUTH] Password mismatch for: ${normalizedEmail}`);
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
@@ -92,7 +103,7 @@ router.post('/login', async (req, res) => {
         }
 
         const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
-        console.log(`[AUTH] Login successful: ${email}`);
+        console.log(`[AUTH] Login successful: ${normalizedEmail}`);
         res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
         console.error('[AUTH] Login Exception:', err);
@@ -101,8 +112,7 @@ router.post('/login', async (req, res) => {
             error: err.message,
             stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
             dbState: mongoose.connection.readyState,
-            hasBody: !!req.body,
-            bodyKeys: req.body ? Object.keys(req.body) : []
+            context: 'Login Route Exception'
         });
     }
 });

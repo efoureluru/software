@@ -35,4 +35,20 @@ router.post('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/bookings/clear-all:
+ *   delete:
+ *     summary: Delete all bookings (Admin only)
+ *     tags: [Bookings]
+ */
+router.delete('/clear-all', auth, admin, async (req, res) => {
+    try {
+        await Booking.deleteMany({});
+        res.json({ message: 'All bookings cleared successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 module.exports = router;
