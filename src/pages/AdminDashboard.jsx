@@ -6,20 +6,25 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('orders');
     const [orders, setOrders] = useState([]);
     const [bookings, setBookings] = useState([]);
+    const [stats, setStats] = useState({ total: 0, scanned: 0, pending: 0 });
     const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
 
     useEffect(() => {
         const fetchData = async () => {
             const token = localStorage.getItem('token');
             try {
-                const [ordersRes, bookingsRes] = await Promise.all([
+                const [ordersRes, bookingsRes, statsRes] = await Promise.all([
                     fetch(`${API_URL}/api/orders/all`, { headers: { 'x-auth-token': token } }),
-                    fetch(`${API_URL}/api/bookings`, { headers: { 'x-auth-token': token } })
+                    fetch(`${API_URL}/api/bookings`, { headers: { 'x-auth-token': token } }),
+                    fetch(`${API_URL}/api/tickets/stats`, { headers: { 'x-auth-token': token } })
                 ]);
                 const ordersData = await ordersRes.json();
                 const bookingsData = await bookingsRes.json();
+                const statsData = await statsRes.json();
+
                 if (Array.isArray(ordersData)) setOrders(ordersData);
                 if (Array.isArray(bookingsData)) setBookings(bookingsData);
+                if (statsData) setStats(statsData);
             } catch (err) {
                 console.error('Fetch error:', err);
             }
@@ -75,7 +80,7 @@ const AdminDashboard = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <header className="mb-10 flex justify-between items-center">
+                    <header className="mb-6 flex justify-between items-center">
                         <div>
                             <h1 className="text-3xl font-heading font-bold text-charcoal-grey">
                                 {tabs.find(t => t.id === activeTab).label}
@@ -87,6 +92,22 @@ const AdminDashboard = () => {
                             Logout
                         </button>
                     </header>
+
+                    {/* Quick Stats Bar */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Today's Tickets</p>
+                            <h3 className="text-2xl font-bold text-charcoal-grey">{stats.total}</h3>
+                        </div>
+                        <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100 shadow-sm">
+                            <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">Scanned</p>
+                            <h3 className="text-2xl font-bold text-emerald-700">{stats.scanned}</h3>
+                        </div>
+                        <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100 shadow-sm">
+                            <p className="text-xs font-bold text-amber-600 uppercase tracking-widest mb-1">Pending (Valid)</p>
+                            <h3 className="text-2xl font-bold text-amber-700">{stats.pending}</h3>
+                        </div>
+                    </div>
 
                     {activeTab === 'orders' && (
                         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">

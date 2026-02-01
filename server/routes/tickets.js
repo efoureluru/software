@@ -39,6 +39,45 @@ router.post('/', async (req, res) => {
 
 /**
  * @swagger
+ * /api/tickets/stats:
+ *   get:
+ *     summary: Get ticket scanning statistics for today
+ *     tags: [Tickets]
+ */
+router.get('/stats', async (req, res) => {
+    try {
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const stats = await Ticket.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startOfDay }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    total: { $sum: 1 },
+                    scanned: {
+                        $sum: { $cond: [{ $eq: ["$status", "used"] }, 1, 0] }
+                    },
+                    pending: {
+                        $sum: { $cond: [{ $eq: ["$status", "valid"] }, 1, 0] }
+                    }
+                }
+            }
+        ]);
+
+        const result = stats[0] || { total: 0, scanned: 0, pending: 0 };
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+/**
+ * @swagger
  * /api/tickets:
  *   get:
  *     summary: Get all tickets

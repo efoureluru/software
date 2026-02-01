@@ -32,11 +32,13 @@ export default function AdminDashboard() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedUserSales, setSelectedUserSales] = useState<string | null>(null);
     const [view, setView] = useState<'transactions' | 'analytics' | 'users'>('transactions');
+    const [ticketStats, setTicketStats] = useState({ total: 0, scanned: 0, pending: 0 });
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchTickets();
         fetchUsers();
+        fetchStats();
     }, []);
 
     const clearAllData = async () => {
@@ -102,6 +104,16 @@ export default function AdminDashboard() {
             setUsers(response.data);
         } catch (error) {
             console.error('Failed to fetch users', error);
+        }
+    };
+
+    const fetchStats = async () => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
+            const response = await axios.get(`${API_URL}/api/tickets/stats`);
+            setTicketStats(response.data);
+        } catch (error) {
+            console.error('Failed to fetch stats', error);
         }
     };
 
@@ -397,7 +409,28 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
-                    {/* Ride Management */}
+                    {/* Ticket Stats */}
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
+                                <Search size={24} />
+                            </div>
+                            <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg uppercase tracking-wider">TODAY</span>
+                        </div>
+                        <div className="flex justify-between items-end">
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Scanned</p>
+                                <h3 className="text-2xl font-black text-emerald-600">{ticketStats.scanned}</h3>
+                            </div>
+                            <div className="w-px h-8 bg-slate-100 mx-2"></div>
+                            <div className="space-y-1 text-right">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Pending</p>
+                                <h3 className="text-2xl font-black text-amber-500">{ticketStats.pending}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Ride Management Button - Replaced the card with one more card if needed, or keep it consistent */}
                     <div
                         onClick={() => navigate('/admin/rides')}
                         className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer group"
@@ -615,7 +648,7 @@ export default function AdminDashboard() {
 
                         <div className="flex gap-2 w-full sm:w-auto justify-end">
                             <button
-                                onClick={fetchTickets}
+                                onClick={() => { fetchTickets(); fetchStats(); }}
                                 className="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-600 transition-all shadow-sm flex-none"
                                 title="Refresh Data"
                             >
