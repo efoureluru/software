@@ -6,7 +6,7 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('orders');
     const [orders, setOrders] = useState([]);
     const [bookings, setBookings] = useState([]);
-    const API_URL = 'https://software-tawny-gamma.vercel.app';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
 
     useEffect(() => {
         const fetchData = async () => {
