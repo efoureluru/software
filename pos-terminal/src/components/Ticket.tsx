@@ -15,18 +15,40 @@ interface TicketProps {
     earnedPoints?: number;
 }
 
-export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: any[], skipMaster?: boolean }>(({ items, total, date, ticketId, mobileNumber, subTickets, skipMaster, earnedPoints }, ref) => {
+interface TicketProps {
+    items: CartItem[];
+    total: number;
+    date: string;
+    ticketId: string;
+    mobileNumber?: string;
+    earnedPoints?: number;
+    settings?: {
+        top: number;
+        bottom: number;
+        left: number;
+        right: number;
+        scale?: number;
+    };
+}
+
+export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: any[], skipMaster?: boolean, isPreview?: boolean }>(({ items, total, date, ticketId, mobileNumber, subTickets, skipMaster, earnedPoints, isPreview, settings: margins }, ref) => {
 
     const TicketContent = ({ data, isCoupon = false, items: ticketItems, total: ticketTotal, hasPageBreak = false }: { data: any, isCoupon?: boolean, items?: CartItem[], total?: number, hasPageBreak?: boolean }) => {
         const displayItems = ticketItems || items;
         const displayTotal = ticketTotal !== undefined ? ticketTotal : total;
 
-        return (
-            <div className={`bg-white text-black font-mono w-full ${hasPageBreak ? 'page-break-before' : ''}`}
+        const content = (
+            <div className={`bg-white text-black font-mono w-full ticket-content ${hasPageBreak ? 'page-break-before' : ''}`}
                 style={{
                     pageBreakBefore: hasPageBreak ? 'always' : 'auto',
-                    minWidth: '3in',
-                    backgroundColor: 'white'
+                    width: '3in',
+                    backgroundColor: 'white',
+                    margin: isPreview ? '0 auto' : '0',
+                    paddingTop: margins ? `${margins.top}px` : '0',
+                    paddingBottom: margins ? `${margins.bottom}px` : '0',
+                    /* Horizontal Shift (Offset) */
+                    transformOrigin: 'top center',
+                    transform: `translateX(${(margins?.left || 0) - (margins?.right || 0)}px) scale(${margins?.scale || 1})`,
                 }}
             >
                 <style>{`
@@ -55,6 +77,13 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
                         }
                         .page-break-before {
                             page-break-before: always !important;
+                        }
+                        /* Apply offsets and padding in print */
+                        .ticket-content {
+                            padding-top: ${margins?.top || 0}px !important;
+                            padding-bottom: ${margins?.bottom || 0}px !important;
+                            transform-origin: top center !important;
+                            transform: translateX(${(margins?.left || 0) - (margins?.right || 0)}px) scale(${margins?.scale || 1}) !important;
                         }
                     }
                 `}</style>
@@ -150,10 +179,12 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
                 </div>
             </div>
         );
+
+        return content;
     };
 
     return (
-        <div ref={ref}>
+        <div ref={ref} className="print:block">
             {/* Main Receipt (Only show if NOT skipping) */}
             {!skipMaster && <TicketContent data={{ id: ticketId }} />}
 

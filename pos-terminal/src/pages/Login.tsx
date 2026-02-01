@@ -16,7 +16,7 @@ export default function Login() {
 
         try {
             // NOTE: Using relative path for API URL in production
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const response = await axios.post(`${API_URL}/api/auth/login`, {
                 email: email.toLowerCase(),
                 password

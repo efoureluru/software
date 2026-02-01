@@ -4,7 +4,7 @@ import { RideCard } from '../components/RideCard';
 import { Cart } from '../components/Cart';
 import { Ticket } from '../components/Ticket';
 // TicketVerifier removed
-import { Ticket as TicketIcon, ScanLine, LogOut, WifiOff, RefreshCw } from 'lucide-react';
+import { Ticket as TicketIcon, ScanLine, LogOut, WifiOff, RefreshCw, Printer, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -23,6 +23,18 @@ export default function POS() {
     const [paymentMode, setPaymentMode] = useState<'cash' | 'upi' | null>(null);
     const [rides, setRides] = useState<Ride[]>([]);
     const [loadingRides, setLoadingRides] = useState(true);
+    // State for preview and cropping
+    const [showPrintPreview, setShowPrintPreview] = useState(false);
+    const [ticketsToSave, setTicketsToSave] = useState<any[]>([]);
+    const [printSettings, setPrintSettings] = useState(() => {
+        const saved = localStorage.getItem('efour_print_settings');
+        return saved ? JSON.parse(saved) : { top: 0, bottom: 0, left: 0, right: 0, scale: 1 };
+    });
+
+    // Save settings to localStorage whenever they change
+    useEffect(() => {
+        localStorage.setItem('efour_print_settings', JSON.stringify(printSettings));
+    }, [printSettings]);
 
     const loggedUser = useMemo(() => JSON.parse(localStorage.getItem('user') || '{}'), []);
 
@@ -61,7 +73,7 @@ export default function POS() {
             setLoadingRides(true);
             try {
                 // Use relative path (/api) in production by default
-                const API_URL = import.meta.env.VITE_API_URL || '';
+                const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
                 // Append timestamp to prevent caching
                 const response = await axios.get(`${API_URL}/api/products?t=${Date.now()}`);
                 console.log('Fetched Rides:', response.data);
@@ -117,7 +129,7 @@ export default function POS() {
     const fetchLoyaltyPoints = async (mobile: string) => {
         setLoadingPoints(true);
         try {
-            const API_URL = import.meta.env.VITE_API_URL || '';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
             const res = await axios.get(`${API_URL}/api/loyalty/${mobile}`);
             if (res.data.points !== undefined) {
                 setLoyaltyPoints(res.data.points);
@@ -160,7 +172,7 @@ export default function POS() {
 
         if (pending.length === 0) return;
 
-        console.log(`Attempting to sync ${pending.length} tickets to ${import.meta.env.VITE_API_URL || ''}/api/tickets`);
+        console.log(`Attempting to sync ${pending.length} tickets to ${import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app'}/api/tickets`);
         setIsSyncing(true);
         try {
             await axios.post(`${import.meta.env.VITE_API_URL || ''}/api/tickets`, pending);
@@ -289,7 +301,7 @@ export default function POS() {
         localStorage.setItem('pos_tickets', JSON.stringify(tickets));
 
         // Set print data for the Ticket component
-        setPrintData({
+        const newPrintData = {
             items: cart,
             total: totalWithTax,
             date: date,
@@ -299,9 +311,17 @@ export default function POS() {
             subTickets: subTickets, // Pass sub-tickets for printing
             skipMaster: true, // Skip summary receipt, print only individual tickets
             earnedPoints: mobileNumber ? (Math.floor(totalWithTax / 100) * 10) : 0
-        });
+        };
 
-        // 3. Trigger Print Immediately (Fastest UX)
+        setPrintData(newPrintData);
+        setTicketsToSave(ticketsToSave);
+        setShowPrintPreview(true);
+    };
+
+    const handlePreviewConfirm = async () => {
+        setShowPrintPreview(false);
+
+        // 1. Trigger Print Immediately (Fastest UX)
         setTimeout(() => {
             window.print();
             setShowSuccessModal(true);
@@ -309,10 +329,10 @@ export default function POS() {
             setPaymentMode(null);
         }, 100);
 
-        // 4. Save to Backend in Background (Non-blocking)
+        // 2. Save to Backend in Background (Non-blocking)
         const saveToBackend = async () => {
             try {
-                const API_URL = import.meta.env.VITE_API_URL || '';
+                const API_URL = import.meta.env.VITE_API_URL || 'https://software-tawny-gamma.vercel.app';
                 if (!isOnline) throw new Error('Offline');
 
                 // Bulk Save Tickets
@@ -325,7 +345,7 @@ export default function POS() {
                             const loyaltyRes = await axios.post(`${API_URL}/api/loyalty/earn`, {
                                 mobile: mobileNumber,
                                 amount: totalWithTax,
-                                ticketId
+                                ticketId: printData?.id || ''
                             });
                             if (loyaltyRes.data.points !== undefined) {
                                 setLoyaltyPoints(loyaltyRes.data.points);
@@ -336,7 +356,7 @@ export default function POS() {
                     if (rewardItem) {
                         for (let i = 0; i < rewardItem.quantity; i++) {
                             try {
-                                await axios.post(`${API_URL}/api/loyalty/redeem`, { mobile: mobileNumber, ticketId });
+                                await axios.post(`${API_URL}/api/loyalty/redeem`, { mobile: mobileNumber, ticketId: printData?.id || '' });
                             } catch (e) { }
                         }
                     }
@@ -622,9 +642,179 @@ export default function POS() {
                         subTickets={printData?.subTickets}
                         skipMaster={printData?.skipMaster}
                         earnedPoints={printData?.earnedPoints}
+                        settings={printSettings}
                     />
                 </div>
             </div>
+
+            {/* Print Preview Modal */}
+            {showPrintPreview && (
+                <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center z-[70] p-4 print:hidden overflow-hidden">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] animate-in zoom-in slide-in-from-bottom-10 duration-500 ring-1 ring-white/20">
+                        {/* Header */}
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-3xl">
+                            <div>
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-xl font-black text-slate-800 tracking-tight">PRINT PREVIEW</h3>
+                                    <span className="bg-amber-100 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border border-amber-200">Interactive Crop</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Drag handles to adjust margins & prevent cutting</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setPrintSettings({ top: 0, bottom: 0, left: 0, right: 0, scale: 1 })}
+                                    className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    Reset
+                                </button>
+                                <button
+                                    onClick={() => setShowPrintPreview(false)}
+                                    className="p-2 hover:bg-white rounded-full transition-colors text-slate-400 hover:text-rose-500 shadow-sm border border-slate-100"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Preview Area with Cropping */}
+                        <div className="flex-1 overflow-y-auto p-8 bg-slate-100 custom-scrollbar relative select-none">
+                            <div className="relative mx-auto" style={{ width: 'fit-content' }}>
+                                {/* Draggable Crop Controls Overlay */}
+                                <div className="absolute inset-0 z-20 pointer-events-none border-2 border-dashed border-sky-400/50 rounded-sm">
+                                    {/* Top Handle */}
+                                    <div
+                                        className="absolute -top-3 left-0 right-0 h-6 cursor-ns-resize pointer-events-auto group z-30 flex items-center justify-center"
+                                        onMouseDown={(e) => {
+                                            const startY = e.clientY;
+                                            const startTop = printSettings.top;
+                                            const move = (moveEvent: MouseEvent) => {
+                                                const delta = moveEvent.clientY - startY;
+                                                setPrintSettings((prev: any) => ({ ...prev, top: Math.max(0, startTop + delta) }));
+                                            };
+                                            const end = () => {
+                                                window.removeEventListener('mousemove', move);
+                                                window.removeEventListener('mouseup', end);
+                                            };
+                                            window.addEventListener('mousemove', move);
+                                            window.addEventListener('mouseup', end);
+                                        }}
+                                    >
+                                        <div className="w-12 h-1 bg-sky-500 rounded-full opacity-40 group-hover:opacity-100 transition-opacity"></div>
+                                        <div className="absolute bottom-full mb-1 bg-sky-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Top: {(printSettings.top / 96).toFixed(2)}"
+                                        </div>
+                                    </div>
+
+                                    {/* Bottom Handle */}
+                                    <div
+                                        className="absolute -bottom-3 left-0 right-0 h-6 cursor-ns-resize pointer-events-auto group z-30 flex items-center justify-center"
+                                        onMouseDown={(e) => {
+                                            const startY = e.clientY;
+                                            const startBottom = printSettings.bottom;
+                                            const move = (moveEvent: MouseEvent) => {
+                                                const delta = startY - moveEvent.clientY;
+                                                setPrintSettings((prev: any) => ({ ...prev, bottom: Math.max(0, startBottom + delta) }));
+                                            };
+                                            const end = () => {
+                                                window.removeEventListener('mousemove', move);
+                                                window.removeEventListener('mouseup', end);
+                                            };
+                                            window.addEventListener('mousemove', move);
+                                            window.addEventListener('mouseup', end);
+                                        }}
+                                    >
+                                        <div className="w-12 h-1 bg-sky-500 rounded-full opacity-40 group-hover:opacity-100 transition-opacity"></div>
+                                        <div className="absolute top-full mt-1 bg-sky-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Bottom: {(printSettings.bottom / 96).toFixed(2)}"
+                                        </div>
+                                    </div>
+
+                                    {/* Horizontal Shift Handle (Left/Right Offset) */}
+                                    <div
+                                        className="absolute inset-y-0 -left-6 w-12 cursor-ew-resize pointer-events-auto group z-30 flex flex-col items-center justify-center gap-1"
+                                        onMouseDown={(e) => {
+                                            const startX = e.clientX;
+                                            const startLeft = printSettings.left;
+                                            const move = (moveEvent: MouseEvent) => {
+                                                const delta = moveEvent.clientX - startX;
+                                                setPrintSettings((prev: any) => ({ ...prev, left: startLeft + delta }));
+                                            };
+                                            const end = () => {
+                                                window.removeEventListener('mousemove', move);
+                                                window.removeEventListener('mouseup', end);
+                                            };
+                                            window.addEventListener('mousemove', move);
+                                            window.addEventListener('mouseup', end);
+                                        }}
+                                    >
+                                        <div className="w-1.5 h-16 bg-sky-500 rounded-full opacity-40 group-hover:opacity-100 transition-opacity shadow-sm"></div>
+                                        <div className="absolute right-full mr-2 bg-sky-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                            Shift: {(printSettings.left / 96).toFixed(2)}"
+                                        </div>
+                                    </div>
+
+                                    {/* Scale Handle (Bottom Right Corner) */}
+                                    <div
+                                        className="absolute -bottom-6 -right-6 w-12 h-12 cursor-nwse-resize pointer-events-auto group z-40 flex items-center justify-center"
+                                        onMouseDown={(e) => {
+                                            const startY = e.clientY;
+                                            const startScale = printSettings.scale || 1;
+                                            const move = (moveEvent: MouseEvent) => {
+                                                const delta = startY - moveEvent.clientY;
+                                                const newScale = Math.max(0.5, Math.min(1.5, startScale + (delta / 200)));
+                                                setPrintSettings((prev: any) => ({ ...prev, scale: newScale }));
+                                            };
+                                            const end = () => {
+                                                window.removeEventListener('mousemove', move);
+                                                window.removeEventListener('mouseup', end);
+                                            };
+                                            window.addEventListener('mousemove', move);
+                                            window.addEventListener('mouseup', end);
+                                        }}
+                                    >
+                                        <div className="w-4 h-4 border-r-4 border-b-4 border-sky-500 rounded-sm opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                                        <div className="absolute top-full mt-2 bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Size: {(printSettings.scale * 100).toFixed(0)}%
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white shadow-2xl ring-1 ring-black/10 overflow-hidden" style={{ width: '3in' }}>
+                                    <Ticket
+                                        items={printData?.items || []}
+                                        total={printData?.total || 0}
+                                        date={printData?.date || ''}
+                                        ticketId={printData?.id || ''}
+                                        mobileNumber={printData?.mobile || ''}
+                                        subTickets={printData?.subTickets}
+                                        skipMaster={printData?.skipMaster}
+                                        earnedPoints={printData?.earnedPoints}
+                                        isPreview={true}
+                                        settings={printSettings}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="p-6 border-t border-slate-100 bg-white rounded-b-3xl grid grid-cols-2 gap-4">
+                            <button
+                                onClick={() => setShowPrintPreview(false)}
+                                className="w-full px-4 py-4 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all active:scale-[0.98] uppercase text-xs tracking-widest border border-slate-200"
+                            >
+                                Cancel / Edit
+                            </button>
+                            <button
+                                onClick={handlePreviewConfirm}
+                                className="w-full px-4 py-4 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-500/20 active:scale-[0.98] flex items-center justify-center gap-3 uppercase text-xs tracking-widest"
+                            >
+                                <Printer size={18} />
+                                Confirm & Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Success Modal */}
             {showSuccessModal && (
