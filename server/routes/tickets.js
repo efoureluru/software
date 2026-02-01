@@ -52,7 +52,8 @@ router.get('/stats', async (req, res) => {
         const stats = await Ticket.aggregate([
             {
                 $match: {
-                    createdAt: { $gte: startOfDay }
+                    createdAt: { $gte: startOfDay },
+                    isCoupon: true // Strictly count entrance tickets/coupons only
                 }
             },
             {

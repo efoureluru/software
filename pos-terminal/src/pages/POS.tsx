@@ -244,7 +244,8 @@ export default function POS() {
             mobile: mobileNumber,
             paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
             createdBy: loggedUser.name || loggedUser.email || 'Cashier',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            isCoupon: false // Explicitly mark master ticket
         };
         ticketsToSave.push(masterTicket);
 
@@ -286,7 +287,7 @@ export default function POS() {
                         paymentMode: (paymentMode || 'cash') as 'cash' | 'upi',
                         createdBy: loggedUser.name || 'Unknown',
                         createdAt: new Date().toISOString(),
-                        isCoupon: false,
+                        isCoupon: true,
                         parentId: ticketId
                     };
                     ticketsToSave.push(subTicket);
@@ -389,7 +390,8 @@ export default function POS() {
             mobile: printData.mobile,
             paymentMode: (printData.paymentMode || 'cash') as 'cash' | 'upi',
             status: 'valid',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            isCoupon: false
         };
 
         // Handle SubTickets regeneration if needed

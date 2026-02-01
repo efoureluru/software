@@ -103,7 +103,10 @@ export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: an
                             {isCoupon ? (
                                 <div className="border-2 border-black text-black px-1.5 py-1.5">
                                     <span className="font-black leading-none uppercase block" style={{ fontSize: '18pt' }}>{displayItems[0]?.name || 'ANY RIDE'}</span>
-                                    <span className="font-bold uppercase block mt-1 border-t border-black pt-1" style={{ fontSize: '8pt' }}>PASS • EFOUR</span>
+                                    <div className="flex justify-between items-center border-t border-black mt-1 pt-1">
+                                        <span className="font-bold uppercase" style={{ fontSize: '8pt' }}>PASS • EFOUR</span>
+                                        <span className="font-black" style={{ fontSize: '10pt' }}>₹{ticketTotal}</span>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="space-y-0.5 text-left px-1">
