@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "ETHREE",
+    "slug": "ethree-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ethree.app",
+      "usesAppleSignIn": true,
+      "splash": {
+        "image": "./assets/LOGO.jpeg",
+        "resizeMode": "contain",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-google-signin/google-signin"
+    ],
+    "android": {
+      "package": "com.ethree.app"
+    }
+  }
+}
