@@ -32,8 +32,14 @@ const LoginScreen = () => {
     const [confirm, setConfirm] = useState(null);
 
     const handleSendOtp = async () => {
+        if (Platform.OS === 'web') {
+            alert("Phone authentication is not yet supported on web. Please use Mobile app or other login methods.");
+            return;
+        }
+
         if (phoneNumber.length === 10) {
             try {
+                const auth = require('@react-native-firebase/auth').default;
                 const confirmation = await auth().signInWithPhoneNumber(`+91${phoneNumber}`);
                 setConfirm(confirmation);
                 setStep(2);
