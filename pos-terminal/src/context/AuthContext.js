@@ -1,11 +1,36 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth from '@react-native-firebase/auth';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import * as AppleAuthentication from 'expo-apple-authentication';
+
+// Platform-agnostic Auth helpers
+const getAuth = () => {
+    if (Platform.OS === 'web') {
+        return require('../config/firebase').auth;
+    } else {
+        return require('@react-native-firebase/auth').default();
+    }
+};
+
+const getAuthModule = () => {
+    if (Platform.OS === 'web') {
+        return require('firebase/auth');
+    } else {
+        return require('@react-native-firebase/auth').default;
+    }
+};
+
+// Conditionally import other native modules
+let GoogleSignin;
+if (Platform.OS !== 'web') {
+    GoogleSignin = require('@react-native-google-signin/google-signin').GoogleSignin;
+}
+
+let AppleAuthentication;
+if (Platform.OS !== 'web') {
+    AppleAuthentication = require('expo-apple-authentication');
+}
 
 const AuthContext = createContext();
-
 const BACKEND_URL = 'http://localhost:5001/api'; // Update for production
 
 export const AuthProvider = ({ children }) => {
@@ -15,21 +40,29 @@ export const AuthProvider = ({ children }) => {
 
     // Initialize Google Sign-In
     useEffect(() => {
-        GoogleSignin.configure({
-            webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', // Get from Firebase console
-        });
+        if (Platform.OS !== 'web') {
+            GoogleSignin.configure({
+                webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
+            });
+        }
     }, []);
 
     // Listen for Firebase auth state changes
     useEffect(() => {
-        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-        return subscriber; // unsubscribe on unmount
+        const auth = getAuth();
+        let unsubscribe;
+        if (Platform.OS === 'web') {
+            const { onAuthStateChanged } = getAuthModule();
+            unsubscribe = onAuthStateChanged(auth, onAuthStateChangedCallback);
+        } else {
+            unsubscribe = auth.onAuthStateChanged(onAuthStateChangedCallback);
+        }
+        return unsubscribe;
     }, []);
 
-    const onAuthStateChanged = async (fbUser) => {
+    const onAuthStateChangedCallback = async (fbUser) => {
         setFirebaseUser(fbUser);
         if (fbUser) {
-            // If user is authenticated via Firebase, get ID Token and login to backend
             const idToken = await fbUser.getIdToken();
             await loginToBackend(idToken);
         } else {
@@ -63,12 +96,17 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithGoogle = async () => {
+        if (Platform.OS === 'web') {
+            console.warn('Google Sign-In not supported on web yet');
+            return;
+        }
         setIsLoading(true);
         try {
             await GoogleSignin.hasPlayServices();
             const { idToken } = await GoogleSignin.signIn();
+            const auth = authModule();
             const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-            const userCredential = await auth().signInWithCredential(googleCredential);
+            const userCredential = await auth.signInWithCredential(googleCredential);
             const idTokenResult = await userCredential.user.getIdToken();
             return await loginToBackend(idTokenResult);
         } catch (error) {
@@ -78,6 +116,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithApple = async () => {
+        if (Platform.OS === 'web') {
+            console.warn('Apple Sign-In not supported on web yet');
+            return;
+        }
         setIsLoading(true);
         try {
             const credential = await AppleAuthentication.signInAsync({
@@ -87,8 +129,9 @@ export const AuthProvider = ({ children }) => {
                 ],
             });
 
+            const auth = authModule();
             const appleCredential = auth.AppleAuthProvider.credential(credential.identityToken);
-            const userCredential = await auth().signInWithCredential(appleCredential);
+            const userCredential = await auth.signInWithCredential(appleCredential);
             const idTokenResult = await userCredential.user.getIdToken();
             return await loginToBackend(idTokenResult);
         } catch (error) {
@@ -100,8 +143,14 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         setIsLoading(true);
         try {
-            await auth().signOut();
-            await GoogleSignin.signOut();
+            const auth = getAuth();
+            if (Platform.OS === 'web') {
+                const { signOut } = getAuthModule();
+                await signOut(auth);
+            } else {
+                await auth.signOut();
+                await GoogleSignin.signOut();
+            }
             await AsyncStorage.removeItem('user');
             await AsyncStorage.removeItem('token');
             setUser(null);
