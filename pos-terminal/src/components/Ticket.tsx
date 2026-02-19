@@ -15,7 +15,7 @@ interface TicketProps {
     earnedPoints?: number;
 }
 
-export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: any[], skipMaster?: boolean }>(({ total, date, ticketId, subTickets, skipMaster }, ref) => {
+export const Ticket = forwardRef<HTMLDivElement, TicketProps & { subTickets?: any[], skipMaster?: boolean }>(({ total, ticketId, subTickets, skipMaster }, ref) => {
 
     const TicketContent = ({ data, total: ticketTotal, hasPageBreak = false }: { data: any, total?: number, hasPageBreak?: boolean }) => {
         // const displayItems = ticketItems || items; // kept for reference if needed for other layouts
